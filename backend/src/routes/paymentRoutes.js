@@ -6,7 +6,8 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 router.use(verifyToken);
-router.get('/calculate', isAdmin, paymentController.getCalculatedPayments);
+// Remove isAdmin from getCalculatedPayments to allow Users to see their own calculation
+router.get('/calculate', paymentController.getCalculatedPayments);
 router.post('/status', isAdmin, upload.single('proof'), paymentController.updateStatus);
 router.post('/writer-status', isAdmin, upload.single('proof'), paymentController.updateWriterStatus);
 router.post('/', isAdmin, paymentController.createPayment);
