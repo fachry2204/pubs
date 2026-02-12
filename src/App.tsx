@@ -18,6 +18,7 @@ import UserList from './pages/admin/UserList';
 import Payments from './pages/admin/Payments';
 import PaymentDetail from './pages/admin/PaymentDetail';
 import UserPaymentDetail from './pages/user/UserPaymentDetail';
+import UserPayments from './pages/user/UserPayments';
 import UserCreators from './pages/user/UserCreators';
 import UserSongs from './pages/user/UserSongs';
 import UnderConstruction from './components/UnderConstruction';
@@ -96,7 +97,7 @@ function App() {
         {/* Report Saya */}
         <Route path="analytics" element={<Analytics />} />
         <Route path="reports" element={<ReportList />} />
-        <Route path="payments" element={<Payments />} />
+        <Route path="payments" element={<UserPayments />} />
         <Route path="payments/:userId" element={<UserPaymentDetail />} />
         
         <Route path="contracts" element={<UnderConstruction title="Kontrak" />} />
