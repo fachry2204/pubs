@@ -1,6 +1,51 @@
 const pool = require('../config/database');
 
 const SongModel = {
+  ensureTable: async () => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS songs (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          song_id VARCHAR(50),
+          title VARCHAR(255) NOT NULL,
+          other_title VARCHAR(255),
+          authorized_rights VARCHAR(255),
+          performer VARCHAR(255),
+          duration VARCHAR(20),
+          genre VARCHAR(100),
+          language VARCHAR(50),
+          region VARCHAR(100),
+          iswc VARCHAR(50),
+          isrc VARCHAR(50),
+          note TEXT,
+          status ENUM('pending', 'review', 'accepted', 'rejected') DEFAULT 'pending',
+          rejection_reason TEXT,
+          lyrics_file VARCHAR(255),
+          user_id INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        )
+      `);
+      
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS writers (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          song_id INT NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          share_percent DECIMAL(5,2) DEFAULT 0,
+          role VARCHAR(100),
+          FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
+        )
+      `);
+    } catch(err) {
+      console.error("Error creating song tables:", err);
+    } finally {
+      connection.release();
+    }
+  },
+
   create: async (data, writers) => {
     const connection = await pool.getConnection();
     try {

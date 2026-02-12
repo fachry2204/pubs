@@ -1,82 +1,100 @@
-const fs = require('fs');
-const path = require('path');
-const bcrypt = require('bcryptjs');
 const pool = require('../config/database');
+const bcrypt = require('bcryptjs');
+
+// Import Models
+const UserModel = require('../models/userModel');
+const SongModel = require('../models/songModel');
+const NotificationModel = require('../models/notificationModel');
+const ReportModel = require('../models/reportModel');
+const PaymentModel = require('../models/paymentModel');
+const ContractModel = require('../models/contractModel');
+const CreatorModel = require('../models/creatorModel');
+const SettingModel = require('../models/settingModel');
 
 async function migrate() {
+  console.log('Starting Database Migration & Initialization...');
+
   try {
-    // Read schema file
-    const schemaPath = path.join(__dirname, '../../schema.sql');
-    const schema = fs.readFileSync(schemaPath, 'utf8');
+    // 1. Users Table (Core)
+    console.log('Ensuring Users Table...');
+    await UserModel.ensureTable();
 
-    // Create database if not exists
-    // Try connecting with database first
-    let connection;
+    // 2. Songs & Writers Table (Depends on Users)
+    console.log('Ensuring Songs & Writers Tables...');
+    await SongModel.ensureTable();
+
+    // 3. Contracts (Depends on Users)
+    console.log('Ensuring Contracts Table...');
+    await ContractModel.ensureTable();
+
+    // 4. Creators (Depends on Users)
+    console.log('Ensuring Creators Table...');
+    await CreatorModel.ensureColumns(); // CreatorModel uses ensureColumns but creates table inside it
+
+    // 5. Reports (Standalone/Linked)
+    console.log('Ensuring Reports & Import History Tables...');
+    await ReportModel.ensureTable();
+
+    // 6. Payments (Depends on Users)
+    console.log('Ensuring Payments Tables...');
+    await PaymentModel.ensureTable();
+
+    // 7. Notifications (Depends on Users)
+    console.log('Ensuring Notifications Table...');
+    await NotificationModel.ensureTable();
+
+    // 8. Settings
+    console.log('Ensuring Settings Table...');
+    // SettingModel.update() creates table if not exists, but let's call a get or mock update check
+    // Actually SettingModel.update does CREATE TABLE IF NOT EXISTS.
+    // We can just call a dummy update check or better, add ensureTable to SettingModel.
+    // For now, let's just run the CREATE SQL manually here or rely on the app usage.
+    // Or we can invoke a lightweight check.
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            company_name VARCHAR(255),
+            logo VARCHAR(255),
+            app_icon VARCHAR(255),
+            login_background VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `);
+    
+    // Check for app_icon column
     try {
-        connection = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
-            database: process.env.DB_NAME || 'pubs_db'
-        });
-        console.log(`Connected to database ${process.env.DB_NAME}`);
-    } catch (err) {
-        // If connection fails, maybe DB doesn't exist? Try creating it (only if we have permissions)
-        console.log('Could not connect to database directly. Attempting to create it...');
-        try {
-            const rootConnection = await mysql.createConnection({
-                host: process.env.DB_HOST || 'localhost',
-                user: process.env.DB_USER || 'root',
-                password: process.env.DB_PASSWORD || ''
-            });
-            await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'pubs_db'}\``);
-            await rootConnection.end();
-            
-            // Reconnect with database
-            connection = await mysql.createConnection({
-                host: process.env.DB_HOST || 'localhost',
-                user: process.env.DB_USER || 'root',
-                password: process.env.DB_PASSWORD || '',
-                database: process.env.DB_NAME || 'pubs_db'
-            });
-        } catch (createErr) {
-             console.error('Failed to connect and failed to create database.', createErr);
-             throw createErr;
+        const [columns] = await pool.query("SHOW COLUMNS FROM settings LIKE 'app_icon'");
+        if (columns.length === 0) {
+            await pool.query("ALTER TABLE settings ADD COLUMN app_icon VARCHAR(255) AFTER logo");
+            console.log('Added app_icon column to settings');
         }
-    }
+    } catch (e) {}
 
-    // Now use the pool (which uses the config) or just use this connection for migration
-    // For simplicity, let's use the connection we established
-    const statements = schema.split(';').filter(stmt => stmt.trim().length > 0);
 
-    console.log('Running migrations...');
-    for (const statement of statements) {
-      await connection.query(statement);
-    }
-    console.log('Schema applied.');
-
-    // Seed Admin
-    const [rows] = await connection.query('SELECT * FROM users WHERE email = ?', ['admin@mail.com']);
+    // 9. Seed Admin
+    console.log('Seeding Admin User...');
+    const adminEmail = 'admin@mail.com';
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [adminEmail]);
+    
     if (rows.length === 0) {
       const hashedPassword = await bcrypt.hash('admin123', 10);
-      await connection.query(
-        'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-        ['Admin', 'admin@mail.com', hashedPassword, 'admin']
+      await pool.query(
+        'INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)',
+        ['Admin', adminEmail, hashedPassword, 'admin', 'accepted']
       );
-      console.log('Admin seeded.');
+      console.log('Admin account created: admin@mail.com / admin123');
     } else {
-      console.log('Admin already exists.');
+      console.log('Admin account already exists.');
     }
 
-    await connection.end();
+    console.log('Migration Completed Successfully!');
     process.exit(0);
+
   } catch (error) {
-    console.error('Migration failed:', error);
+    console.error('Migration Failed:', error);
     process.exit(1);
   }
 }
-
-// Need to import mysql here since we used it for create db
-const mysql = require('mysql2/promise');
 
 migrate();

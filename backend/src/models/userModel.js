@@ -2,6 +2,26 @@ const pool = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 const UserModel = {
+  ensureTable: async () => {
+      try {
+          await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                role ENUM('admin', 'user', 'operator') DEFAULT 'user',
+                status ENUM('pending', 'review', 'accepted', 'rejected') DEFAULT 'pending',
+                percentage_share DECIMAL(5,2) DEFAULT 0.00,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          await UserModel.ensureColumns(); // Then check for extra columns
+      } catch (err) {
+          console.error("Error ensuring users table:", err);
+      }
+  },
+
   // Check if columns exist and add them if not
   ensureColumns: async () => {
     try {

@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const writerRoutes = require('./routes/writerRoutes');
 const creatorRoutes = require('./routes/creatorRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const NotificationModel = require('./models/notificationModel');
 
 const app = express();
 
@@ -27,6 +28,9 @@ app.use(morgan('dev'));
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Init Database Tables
+NotificationModel.ensureTable().catch(err => console.error("Failed to init notification table:", err));
 
 // Health Check
 app.get('/api/health', async (req, res) => {
