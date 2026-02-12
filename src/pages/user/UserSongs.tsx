@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Search, Eye } from 'lucide-react';
+import { Search, Eye, X } from 'lucide-react';
 
 const UserSongs = () => {
   const [songs, setSongs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSong, setSelectedSong] = useState<any | null>(null);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -122,6 +123,7 @@ const UserSongs = () => {
                           <button 
                               className="text-purple-600 hover:text-purple-900 p-1 rounded-md hover:bg-purple-50 transition-colors" 
                               title="Lihat Detail"
+                              onClick={() => setSelectedSong(song)}
                           >
                               <Eye size={18} />
                           </button>
@@ -172,6 +174,113 @@ const UserSongs = () => {
             </div>
         )}
       </div>
+
+      {/* Song Detail Modal */}
+      {selectedSong && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-gray-800">Detail Lagu</h2>
+              <button 
+                onClick={() => setSelectedSong(null)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Song Info */}
+              <div>
+                <h3 className="text-sm font-semibold text-purple-600 uppercase tracking-wider mb-4">Informasi Lagu</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="text-xs text-gray-500 block mb-1">Judul Lagu</label>
+                    <p className="text-lg font-bold text-gray-800">{selectedSong.title}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">Artis / Performer</label>
+                    <p className="font-medium text-gray-800">{selectedSong.performer || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">Status</label>
+                    <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full uppercase
+                          ${(selectedSong.status || 'pending') === 'accepted' ? 'bg-green-100 text-green-800' : 
+                            (selectedSong.status || 'pending') === 'review' ? 'bg-yellow-100 text-yellow-800' : 
+                            (selectedSong.status || 'pending') === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-orange-100 text-orange-800'}`}>
+                        {selectedSong.status || 'pending'}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">ISRC</label>
+                    <p className="font-medium text-gray-800 font-mono">{selectedSong.isrc || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">ISWC</label>
+                    <p className="font-medium text-gray-800 font-mono">{selectedSong.iswc || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">Genre</label>
+                    <p className="font-medium text-gray-800">{selectedSong.genre || '-'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 block mb-1">Bahasa</label>
+                    <p className="font-medium text-gray-800">{selectedSong.language || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Writers Info */}
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-sm font-semibold text-purple-600 uppercase tracking-wider mb-4">Pencipta (Writer/Composer)</h3>
+                
+                {selectedSong.writers && selectedSong.writers.length > 0 ? (
+                  <div className="overflow-hidden border border-gray-200 rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Peran</th>
+                          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Share (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 bg-white">
+                        {selectedSong.writers.map((w: any, idx: number) => (
+                          <tr key={idx}>
+                            <td className="px-4 py-2 text-sm text-gray-900">{w.name}</td>
+                            <td className="px-4 py-2 text-sm text-gray-500">{w.role}</td>
+                            <td className="px-4 py-2 text-sm text-gray-900 text-right">{w.share_percent}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">Tidak ada data pencipta</p>
+                )}
+              </div>
+              
+              {/* Additional Info */}
+              {selectedSong.note && (
+                <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-semibold text-purple-600 uppercase tracking-wider mb-2">Catatan</h3>
+                    <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{selectedSong.note}</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-xl flex justify-end">
+              <button
+                onClick={() => setSelectedSong(null)}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

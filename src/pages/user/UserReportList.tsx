@@ -114,14 +114,14 @@ const UserReportList = () => {
         </div>
 
         <div className="glass-panel p-6 flex items-center col-span-1 md:col-span-1">
-          <div className="p-3 rounded-full bg-orange-100 text-orange-600 mr-4">
-            <Building2 size={24} />
+            <div className="p-3 rounded-full bg-orange-100 text-orange-600 mr-4">
+              <Building2 size={24} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 font-medium">Share Revenue</p>
+              <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_admin_share)}</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">Share To Ruang Musik</p>
-            <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_admin_share)}</h3>
-          </div>
-        </div>
 
         <div className="glass-panel p-6 flex items-center col-span-1 md:col-span-1">
           <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
