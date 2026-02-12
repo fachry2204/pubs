@@ -18,8 +18,8 @@ const UserStatus = () => {
       case 'rejected':
         return {
           icon: <XCircle className="w-16 h-16 text-red-500" />,
-          title: "Account Application Rejected",
-          message: "We're sorry, but your account application has been rejected. Please contact support for more information.",
+          title: "Account Blocked",
+          message: "Your account has been blocked by the administrator. You cannot access the platform.",
           bgColor: "bg-red-500",
           lightBg: "bg-red-50"
         };

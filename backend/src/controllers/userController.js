@@ -10,6 +10,19 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createUser = async (req, res, next) => {
     try {
         const id = await UserModel.create(req.body);
@@ -66,4 +79,4 @@ const generateContract = async (req, res, next) => {
     }
 };
 
-module.exports = { getUsers, createUser, updateUser, deleteUser, generateContract };
+module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser, generateContract };

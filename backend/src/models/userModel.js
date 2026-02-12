@@ -47,7 +47,8 @@ const UserModel = {
           { name: 'province', type: 'VARCHAR(100)' },
           { name: 'city', type: 'VARCHAR(100)' },
           { name: 'district', type: 'VARCHAR(100)' },
-          { name: 'subdistrict', type: 'VARCHAR(100)' }
+          { name: 'subdistrict', type: 'VARCHAR(100)' },
+          { name: 'rejected_reason', type: 'TEXT' }
       ];
 
       for (const col of newColumns) {
@@ -97,13 +98,13 @@ const UserModel = {
   },
 
   findById: async (id) => {
-    const [rows] = await pool.query('SELECT id, name, email, role, status, percentage_share, created_at FROM users WHERE id = ?', [id]);
+    const [rows] = await pool.query('SELECT id, name, email, role, status, percentage_share, whatsapp, address, country, province, city, district, subdistrict, rejected_reason, created_at FROM users WHERE id = ?', [id]);
     return rows[0];
   },
 
   getAll: async () => {
       await UserModel.ensureColumns();
-      const [rows] = await pool.query('SELECT id, name, email, role, status, percentage_share, created_at FROM users ORDER BY created_at DESC');
+      const [rows] = await pool.query('SELECT id, name, email, role, status, percentage_share, rejected_reason, created_at FROM users ORDER BY created_at DESC');
       return rows;
   },
 
@@ -115,6 +116,7 @@ const UserModel = {
       if (data.role) { fields.push('role = ?'); values.push(data.role); }
       if (data.status) { fields.push('status = ?'); values.push(data.status); }
       if (data.percentage_share !== undefined) { fields.push('percentage_share = ?'); values.push(data.percentage_share); }
+      if (data.rejected_reason !== undefined) { fields.push('rejected_reason = ?'); values.push(data.rejected_reason); }
       if (data.password) { 
           const hashed = await bcrypt.hash(data.password, 10);
           fields.push('password = ?'); values.push(hashed);
