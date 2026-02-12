@@ -38,28 +38,36 @@ const Settings = () => {
         const apiUrl = import.meta.env.VITE_API_URL || '/api';
         const baseUrl = apiUrl.replace('/api', '');
 
+        // Helper to construct URL
+        const getUrl = (path: string) => {
+            if (!path) return null;
+            const cleanPath = path.replace(/\\/g, '/');
+            if (cleanPath.startsWith('http')) return cleanPath;
+            
+            // If baseUrl is empty (relative path) and cleanPath starts with /, return as is
+            if (!baseUrl && cleanPath.startsWith('/')) return cleanPath;
+            
+            // If baseUrl is set, ensure we don't double slash
+            const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+            const p = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+            
+            return `${base}${p}`;
+        };
+
         if (res.data.logo) {
-          const logoPath = res.data.logo.replace(/\\/g, '/');
-          const logoUrl = logoPath.startsWith('http') ? logoPath : `${baseUrl}/${logoPath}`;
-          setLogoPreview(logoUrl);
+          setLogoPreview(getUrl(res.data.logo));
         }
 
         if (res.data.login_background) {
-            const bgPath = res.data.login_background.replace(/\\/g, '/');
-            const bgUrl = bgPath.startsWith('http') ? bgPath : `${baseUrl}/${bgPath}`;
-            setLoginBgPreview(bgUrl);
+            setLoginBgPreview(getUrl(res.data.login_background));
         }
 
         if (res.data.app_icon) {
-            const iconPath = res.data.app_icon.replace(/\\/g, '/');
-            const iconUrl = iconPath.startsWith('http') ? iconPath : `${baseUrl}/${iconPath}`;
-            setAppIconPreview(iconUrl);
+            setAppIconPreview(getUrl(res.data.app_icon));
         }
 
         if (res.data.social_image) {
-            const socialPath = res.data.social_image.replace(/\\/g, '/');
-            const socialUrl = socialPath.startsWith('http') ? socialPath : `${baseUrl}/${socialPath}`;
-            setSocialImagePreview(socialUrl);
+            setSocialImagePreview(getUrl(res.data.social_image));
         }
       }
     } catch (error) {
