@@ -398,9 +398,10 @@ const PaymentDetail = () => {
                                                     {writer.payment_proof && (
                                                         <button 
                                                             onClick={() => {
-                                                                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-                                                                const baseUrl = apiUrl.replace('/api', '');
-                                                                setProofUrl(`${baseUrl}/uploads/proof/${writer.payment_proof}`);
+                                                                const proofPath = writer.payment_proof.startsWith('http') 
+                                                                    ? writer.payment_proof 
+                                                                    : writer.payment_proof.startsWith('/uploads/') ? writer.payment_proof : `/uploads/proof/${writer.payment_proof}`;
+                                                                setProofUrl(proofPath);
                                                                 setShowProofModal(true);
                                                             }}
                                                             className="p-2 bg-purple-50 text-purple-600 rounded border border-purple-100 hover:bg-purple-100"

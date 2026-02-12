@@ -40,7 +40,7 @@ const updateStatus = async (req, res, next) => {
         let proof_file = null;
         
         if (req.file) {
-            proof_file = req.file.filename;
+            proof_file = '/uploads/proof/' + req.file.filename;
         }
 
         const existing = await PaymentModel.findByUserAndPeriod(user_id, month, year);
@@ -73,7 +73,7 @@ const updateWriterStatus = async (req, res, next) => {
         let proof_file = null;
         
         if (req.file) {
-            proof_file = req.file.filename;
+            proof_file = '/uploads/proof/' + req.file.filename;
         }
 
         await PaymentModel.updateWriterStatus({
