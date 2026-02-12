@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: 'frontend_dist', // Output to specific folder for Plesk
     chunkSizeWarningLimit: 500,
     rollupOptions: {
       output: {

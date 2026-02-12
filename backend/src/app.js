@@ -50,6 +50,34 @@ app.use('/api/contracts', contractRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// --- SERVE FRONTEND (SINGLE DOMAIN) ---
+// Serve static files from React build (frontend/dist)
+// Assuming the structure on Plesk will be:
+// /httpdocs
+//   ├── backend (Node.js app)
+//   ├── frontend_dist (React build result)
+//   └── ...
+const frontendPath = path.join(__dirname, '../../frontend_dist');
+
+// Check if frontend build exists
+const fs = require('fs');
+if (fs.existsSync(frontendPath)) {
+    console.log('Serving frontend from:', frontendPath);
+    app.use(express.static(frontendPath));
+
+    // Handle React routing, return all requests to React app
+    app.get('*', (req, res) => {
+        // Skip API routes that might have fallen through
+        if (req.path.startsWith('/api')) {
+            return res.status(404).json({ message: 'API Endpoint not found' });
+        }
+        res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+} else {
+    console.log('Frontend build not found at:', frontendPath);
+    console.log('Running in API-only mode or check deployment structure.');
+}
+
 // Error Handler
 app.use(errorHandler);
 
