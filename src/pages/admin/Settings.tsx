@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Save, Upload } from 'lucide-react';
+import SuccessModal from '../../components/SuccessModal';
 
 const Settings = () => {
   const [companyName, setCompanyName] = useState('');
@@ -18,6 +19,7 @@ const Settings = () => {
   const [socialImage, setSocialImage] = useState<File | null>(null);
   const [socialImagePreview, setSocialImagePreview] = useState<string | null>(null);
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -125,10 +127,12 @@ const Settings = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setMessage('Settings updated successfully');
-    } catch (error) {
+      // setMessage('Settings updated successfully');
+      setShowSuccessModal(true);
+    } catch (error: any) {
       console.error('Failed to update settings', error);
-      setMessage('Failed to update settings');
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to update settings';
+      setMessage(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -136,9 +140,15 @@ const Settings = () => {
 
   return (
     <div className="glass-panel p-6">
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={() => setShowSuccessModal(false)} 
+        title="Berhasil Disimpan"
+        message="Pengaturan aplikasi telah berhasil diperbarui."
+      />
       <h2 className="text-2xl font-bold mb-6 text-[#7A4A88]">Settings</h2>
       {message && (
-        <div className={`p-4 rounded-md mb-4 ${message.includes('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <div className={`p-4 rounded-md mb-4 ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
           {message}
         </div>
       )}

@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
       folder = 'uploads/reports/';
     } else if (file.fieldname === 'contract') {
       folder = 'uploads/contracts/';
-    } else if (file.fieldname === 'logo' || file.fieldname === 'login_background' || file.fieldname === 'app_icon') {
+    } else if (file.fieldname === 'logo' || file.fieldname === 'login_background' || file.fieldname === 'app_icon' || file.fieldname === 'social_image') {
       folder = 'uploads/logo/';
     } else if (file.fieldname === 'ktp') {
       folder = 'uploads/ktp/';
@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
     // Use path.resolve to ensure absolute path relative to backend root
     const dir = path.resolve(__dirname, '../../uploads', file.fieldname === 'report' ? 'reports' : 
                                                          file.fieldname === 'contract' ? 'contracts' :
-                                                         (file.fieldname === 'logo' || file.fieldname === 'login_background' || file.fieldname === 'app_icon') ? 'logo' :
+                                                         (file.fieldname === 'logo' || file.fieldname === 'login_background' || file.fieldname === 'app_icon' || file.fieldname === 'social_image') ? 'logo' :
                                                          file.fieldname === 'ktp' ? 'ktp' :
                                                          file.fieldname === 'npwp' ? 'npwp' :
                                                          file.fieldname === 'proof' ? 'proof' : '');
