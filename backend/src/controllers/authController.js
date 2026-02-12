@@ -31,15 +31,9 @@ const login = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check status - Exempt admin and operator from status checks
-    if (user.role === 'user' && user.status !== 'accepted') {
-        return res.status(403).json({ 
-            message: 'Account not active', 
-            status: user.status || 'pending',
-            detail: 'Your account is currently under review or pending approval.'
-        });
-    }
-
+    // REMOVED: Status check block that returned 403
+    // We now allow login for all statuses so frontend can show appropriate status page
+    
     const token = jwt.sign(
       { id: user.id, role: user.role, email: user.email, name: user.name },
       process.env.JWT_SECRET,
@@ -52,7 +46,8 @@ const login = async (req, res, next) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        status: user.status || 'pending' // Send status to frontend
       }
     });
   } catch (error) {
@@ -91,4 +86,36 @@ const updateProfile = async (req, res, next) => {
     }
 };
 
-module.exports = { register, login, getMe, updateProfile };
+const checkAvailability = async (req, res, next) => {
+    try {
+        const { email, whatsapp } = req.body;
+        
+        if (email) {
+            const existingEmail = await UserModel.findByEmail(email);
+            if (existingEmail) {
+                return res.json({ 
+                    available: false, 
+                    field: 'email', 
+                    message: 'Email sudah terdaftar. Silakan gunakan email lain atau login.' 
+                });
+            }
+        }
+
+        if (whatsapp) {
+            const existingWhatsapp = await UserModel.findByWhatsapp(whatsapp);
+            if (existingWhatsapp) {
+                return res.json({ 
+                    available: false, 
+                    field: 'whatsapp', 
+                    message: 'Nomor WhatsApp sudah terdaftar. Silakan gunakan nomor lain.' 
+                });
+            }
+        }
+
+        res.json({ available: true });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { register, login, getMe, updateProfile, checkAvailability };

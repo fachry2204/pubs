@@ -106,22 +106,22 @@ const ReportList = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="glass-panel p-6 flex items-center">
-          <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-            <Banknote size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">Net Revenue (Client)</p>
-            <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_client_share || summary.total_net_revenue)}</h3>
-          </div>
-        </div>
-        
-        <div className="glass-panel p-6 flex items-center">
           <div className="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
             <PieChart size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Sub Publisher Share</p>
+            <p className="text-sm text-gray-500 font-medium">Total Revenue</p>
             <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_sub_pub_share)}</h3>
+          </div>
+        </div>
+
+        <div className="glass-panel p-6 flex items-center">
+          <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+            <Banknote size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 font-medium">Revenue saya</p>
+            <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_client_share || summary.total_net_revenue)}</h3>
           </div>
         </div>
         
@@ -130,7 +130,7 @@ const ReportList = () => {
             <Wallet size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">TBW Share (Publisher Pusat)</p>
+            <p className="text-sm text-gray-500 font-medium">Share To Ruang Musik</p>
             <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_admin_share || summary.total_tbw_share)}</h3>
           </div>
         </div>
@@ -182,7 +182,7 @@ const ReportList = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pencipta</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asal Report</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Sub Publisher Share (Revenue)</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>

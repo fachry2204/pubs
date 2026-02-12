@@ -4,6 +4,7 @@ const authController = require('../controllers/authController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 router.post('/register', authController.register);
+router.post('/check-availability', authController.checkAvailability);
 router.post('/login', authController.login);
 router.get('/me', verifyToken, authController.getMe);
 router.put('/update-profile', verifyToken, authController.updateProfile);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, AlertCircle, X } from 'lucide-react';
 import axios from 'axios';
 
 interface Region {
@@ -40,6 +40,11 @@ const Register = () => {
   
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Modal State
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', message: '' });
+
   const navigate = useNavigate();
 
   // Fetch Countries on Mount
@@ -174,15 +179,43 @@ const Register = () => {
     }
   };
 
-  const handleNext = (e: React.FormEvent) => {
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
       if (!formData.name || !formData.email || !formData.whatsapp || !formData.password) {
         setError('Please fill in all fields');
         return;
       }
+      
+      setIsLoading(true);
       setError('');
-      setStep(2);
+      
+      try {
+        // Check availability
+        const response = await api.post('/auth/check-availability', {
+            email: formData.email,
+            whatsapp: formData.whatsapp
+        });
+
+        if (response.data.available === false) {
+            setModalContent({
+                title: 'Data Sudah Terdaftar',
+                message: response.data.message
+            });
+            setShowErrorModal(true);
+            setIsLoading(false);
+            return;
+        }
+
+        setStep(2);
+      } catch (err) {
+        console.error('Check availability error:', err);
+        // If check fails (e.g. server error), allow proceeding but maybe warn? 
+        // Or block. Let's block for safety but show generic error.
+        setError('Gagal memverifikasi data. Silakan coba lagi.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -213,11 +246,32 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="glass-panel w-full max-w-md p-8">
+      <div className="glass-panel w-full max-w-2xl p-8 relative">
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-[#7A4A88]">Register</h2>
             <p className="mt-2 text-sm text-gray-600">Create your account to get started</p>
         </div>
+
+        {/* Error Modal Popup */}
+        {showErrorModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100">
+                    <div className="bg-red-50 p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                            <AlertCircle className="w-6 h-6 text-red-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{modalContent.title}</h3>
+                        <p className="text-sm text-gray-600 mb-6">{modalContent.message}</p>
+                        <button 
+                            onClick={() => setShowErrorModal(false)}
+                            className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+                        >
+                            Mengerti
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
@@ -286,9 +340,12 @@ const Register = () => {
               
               <button
                 type="submit"
-                className="glass-button w-full flex items-center justify-center gap-2 mt-6"
+                disabled={isLoading}
+                className="glass-button w-full flex items-center justify-center gap-2 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Next Step <ArrowRight size={18} />
+                {isLoading ? 'Checking...' : (
+                    <>Next Step <ArrowRight size={18} /></>
+                )}
               </button>
             </div>
           ) : (

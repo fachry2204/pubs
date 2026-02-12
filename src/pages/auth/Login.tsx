@@ -86,22 +86,17 @@ const Login = () => {
     try {
       const res = await api.post('/auth/login', { email, password });
       login(res.data.token, res.data.user);
+      
+      // Redirect based on role and status
       if (res.data.user.role === 'admin') {
         navigate('/admin');
+      } else if (res.data.user.role === 'user' && res.data.user.status !== 'accepted') {
+        navigate('/status');
       } else {
         navigate('/user');
       }
     } catch (err: any) {
-      if (err.response?.status === 403 && err.response?.data?.status) {
-        setStatusModal({
-            show: true,
-            status: err.response.data.status,
-            detail: err.response.data.detail
-        });
-        setError('');
-      } else {
-        setError(err.response?.data?.message || 'Login failed');
-      }
+      setError(err.response?.data?.message || 'Login failed');
     }
   };
 

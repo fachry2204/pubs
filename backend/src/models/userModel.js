@@ -78,6 +78,12 @@ const UserModel = {
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     return rows[0];
   },
+
+  findByWhatsapp: async (whatsapp) => {
+    await UserModel.ensureColumns();
+    const [rows] = await pool.query('SELECT * FROM users WHERE whatsapp = ?', [whatsapp]);
+    return rows[0];
+  },
   
   create: async (userData) => {
     await UserModel.ensureColumns();

@@ -26,6 +26,7 @@ import UserReportList from './pages/user/UserReportList';
 import UserAnalytics from './pages/user/UserAnalytics';
 import UnderConstruction from './components/UnderConstruction';
 import Maintenance from './pages/Maintenance';
+import UserStatus from './pages/UserStatus';
 import api from './services/api';
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
   return (
     <Routes>
       <Route path="/maintenance" element={<Maintenance />} />
+      <Route path="/status" element={<UserStatus />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       

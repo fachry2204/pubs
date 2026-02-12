@@ -13,6 +13,11 @@ const UserLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Check status and redirect to status page if not accepted
+  if (user.role === 'user' && user.status && user.status !== 'accepted') {
+      return <Navigate to="/status" replace />;
+  }
+
   // Optional: Redirect admin to admin dashboard if they try to access user layout
   if (user.role === 'admin') {
       return <Navigate to="/admin" replace />;

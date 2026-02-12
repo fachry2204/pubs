@@ -217,21 +217,21 @@ const Analytics = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
-              <div className="p-3 bg-red-50 text-red-600 rounded-full mr-4">
-                  <Users size={24} />
-              </div>
-              <div>
-                  <p className="text-sm text-gray-500 font-medium">Net Revenue</p>
-                  <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary?.total_client_share || 0)}</h3>
-              </div>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
               <div className="p-3 bg-purple-50 text-purple-600 rounded-full mr-4">
                   <Trophy size={24} />
               </div>
               <div>
-                  <p className="text-sm text-gray-500 font-medium">Sub Publisher Share</p>
+                  <p className="text-sm text-gray-500 font-medium">Total Revenue</p>
                   <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary?.total_sub_pub_share || 0)}</h3>
+              </div>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
+              <div className="p-3 bg-red-50 text-red-600 rounded-full mr-4">
+                  <Users size={24} />
+              </div>
+              <div>
+                  <p className="text-sm text-gray-500 font-medium">Revenue saya</p>
+                  <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary?.total_client_share || 0)}</h3>
               </div>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center">
@@ -239,7 +239,7 @@ const Analytics = () => {
                   <Music size={24} />
               </div>
               <div>
-                  <p className="text-sm text-gray-500 font-medium">TBW Share</p>
+                  <p className="text-sm text-gray-500 font-medium">Share To Ruang Musik</p>
                   <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary?.total_admin_share || 0)}</h3>
               </div>
           </div>
