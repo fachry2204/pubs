@@ -4,13 +4,13 @@ const UserModel = require('../models/userModel');
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, whatsapp, address, country, province, city, district, subdistrict } = req.body;
     const existingUser = await UserModel.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ message: 'Email already exists' });
     }
     
-    await UserModel.create({ name, email, password, role });
+    await UserModel.create({ name, email, password, role, whatsapp, address, country, province, city, district, subdistrict });
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     next(error);

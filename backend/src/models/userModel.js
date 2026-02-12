@@ -39,6 +39,24 @@ const UserModel = {
         await pool.query("ALTER TABLE users ADD COLUMN percentage_share DECIMAL(5,2) DEFAULT 0.00");
       }
 
+      // Check for new address/contact columns
+      const newColumns = [
+          { name: 'whatsapp', type: 'VARCHAR(20)' },
+          { name: 'address', type: 'TEXT' },
+          { name: 'country', type: 'VARCHAR(100)' },
+          { name: 'province', type: 'VARCHAR(100)' },
+          { name: 'city', type: 'VARCHAR(100)' },
+          { name: 'district', type: 'VARCHAR(100)' },
+          { name: 'subdistrict', type: 'VARCHAR(100)' }
+      ];
+
+      for (const col of newColumns) {
+          const [check] = await pool.query(`SHOW COLUMNS FROM users LIKE '${col.name}'`);
+          if (check.length === 0) {
+              await pool.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`);
+          }
+      }
+
       // Check for role column modification (to support 'operator')
       // Note: modifying ENUM in MySQL usually requires recreating the column definition
       const [roleCheck] = await pool.query("SHOW COLUMNS FROM users LIKE 'role'");
@@ -63,11 +81,11 @@ const UserModel = {
   
   create: async (userData) => {
     await UserModel.ensureColumns();
-    const { name, email, password, role } = userData;
+    const { name, email, password, role, whatsapp, address, country, province, city, district, subdistrict } = userData;
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, role || 'user', 'pending']
+      'INSERT INTO users (name, email, password, role, status, whatsapp, address, country, province, city, district, subdistrict) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, role || 'user', 'pending', whatsapp, address, country, province, city, district, subdistrict]
     );
     return result.insertId;
   },

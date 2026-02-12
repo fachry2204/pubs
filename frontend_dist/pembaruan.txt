@@ -1,3 +1,17 @@
+Versi 1.0.4 (Update Register & User Detail)
+
+Fitur Baru:
+- Register Multi-step: Pendaftaran user baru kini 2 langkah (Info Dasar & Alamat)
+- Integrasi Wilayah: Pilihan Negara, dan otomatisasi Provinsi s/d Kelurahan untuk Indonesia (via API)
+- Detail Data User:
+  * Modal detail untuk Data Lagu (Writer, Share, dll)
+  * Modal detail untuk Data Pencipta (Bank, Dokumen, dll)
+
+Perbaikan:
+- Perubahan label "Share To Ruang Musik" menjadi "Share Revenue" pada dashboard user
+- Penambahan kolom WhatsApp dan Alamat Lengkap pada database user
+- Optimasi UX form register dengan validasi bertahap
+
 Versi 1.0.3 (Update Halaman User & Report)
 
 Fitur Baru:
