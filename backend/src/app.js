@@ -51,29 +51,41 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/contracts', contractRoutes);app.use('/api/settings', settingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Health Check--- SERVE FRONTEND (SINGLE DOMAIN) ---
+// --- SERVE FRONTEND (SINGLE DOMAIN) ---
 // Serve static files from React build (frontend/dist)
 // Assuming the structure on Plesk will be:
 // /httpdocs
 //   ├── backend (Node.js app)
 //   ├── frontend_dist (React build result)
 //   └── ...
-const frontendPath = path.join(__dirname, '../../frontend_dist');
 
-// ALSO Check if we are running in Plesk structure where frontend_dist might be in root
-// On Plesk, document root is usually /httpdocs/backend/public, so ../../frontend_dist is correct if app.js is in /httpdocs/backend/src
-// But let's add a fallback to check relative to root if needed.
+// In Plesk, Application Root is /pub.dimensisuara.id, Startup File is backend/src/app.js
+// So 'process.cwd()' is usually /pub.dimensisuara.id
+// And 'frontend_dist' should be at /pub.dimensisuara.id/frontend_dist
 
 const fs = require('fs');
 
-// Try to find the correct path
 let finalFrontendPath = null;
-if (fs.existsSync(frontendPath)) {
-    finalFrontendPath = frontendPath;
-} else {
-    // Fallback: maybe we are running locally or structure is different
-    const altPath = path.join(__dirname, '../../../frontend_dist'); // Just in case
-    if (fs.existsSync(altPath)) finalFrontendPath = altPath;
+const possiblePaths = [
+    // 1. Standard Plesk Structure (Application Root / frontend_dist)
+    path.join(process.cwd(), 'frontend_dist'),
+    
+    // 2. Relative to this file (backend/src/app.js -> ../../frontend_dist)
+    path.join(__dirname, '../../frontend_dist'),
+    
+    // 3. Fallback for local dev
+    path.join(__dirname, '../../../frontend_dist'),
+    
+    // 4. Maybe inside backend?
+    path.join(__dirname, '../frontend_dist')
+];
+
+for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+        finalFrontendPath = p;
+        console.log('Frontend found at:', p);
+        break;
+    }
 }
 
 if (finalFrontendPath) {
@@ -89,11 +101,13 @@ if (finalFrontendPath) {
         res.sendFile(path.join(finalFrontendPath, 'index.html'));
     });
 } else {
-    console.log('Frontend build not found at:', frontendPath);
+    console.log('Frontend build not found. Checked paths:', possiblePaths);
     console.log('Running in API-only mode or check deployment structure.');
     
-    // Fallback for Plesk: If frontend is not found, it might be serving backend/public/index.html by default
-    // We should try to serve a friendly message or nothing so it doesn't conflict
+    // Friendly message for root
+    app.get('/', (req, res) => {
+        res.send('Backend API is running. Frontend build not found.');
+    });
 }
 
 // Error Handler
