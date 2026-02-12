@@ -116,11 +116,14 @@ const ReportModel = {
 
   getByUserId: async (userId, month = null, year = null) => {
     // Join reports with songs to filter by user_id
+    // Also join users to get percentage_share for net calculation
     let sql = `
       SELECT r.*, s.title as song_title, s.song_id as song_code,
+             (r.sub_pub_share * (1 - (u.percentage_share / 100))) as user_net_revenue,
              1 as is_matched
       FROM reports r
       JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+      JOIN users u ON s.user_id = u.id
       WHERE s.user_id = ?
     `;
     const params = [userId];
@@ -140,20 +143,32 @@ const ReportModel = {
   },
 
   getSummaryByPeriod: async (month, year, userId = null) => {
-    let sql = `
-      SELECT 
-        SUM(r.sub_pub_share) as total_sub_pub_share,
-        SUM(r.tbw_share) as total_admin_share,
-        SUM(r.net_revenue) as total_client_share
-      FROM reports r
-    `;
+    let sql;
     const params = [];
 
     if (userId) {
-        sql += ' JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id) WHERE s.user_id = ?';
+        // User View: Calculate shares dynamically based on User Percentage
+        sql = `
+            SELECT 
+                SUM(r.sub_pub_share) as total_sub_pub_share,
+                SUM(r.sub_pub_share * (u.percentage_share / 100)) as total_admin_share,
+                SUM(r.sub_pub_share * (1 - (u.percentage_share / 100))) as total_client_share
+            FROM reports r
+            JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+            JOIN users u ON s.user_id = u.id
+            WHERE s.user_id = ?
+        `;
         params.push(userId);
     } else {
-        sql += ' WHERE 1=1';
+        // Admin View: Use stored values
+        sql = `
+            SELECT 
+                SUM(r.sub_pub_share) as total_sub_pub_share,
+                SUM(r.tbw_share) as total_admin_share,
+                SUM(r.net_revenue) as total_client_share
+            FROM reports r
+            WHERE 1=1
+        `;
     }
 
     if (month) {
@@ -220,35 +235,60 @@ const ReportModel = {
   getTotalSummary: async (userId = null) => {
       // Ensure table structure first
       await ReportModel.ensureTable();
-      let sql = `
-        SELECT 
-          SUM(r.net_revenue) as total_net_revenue,
-          SUM(r.sub_pub_share) as total_sub_pub_share,
-          SUM(r.tbw_share) as total_tbw_share
-        FROM reports r
-      `;
+      let sql;
       const params = [];
+
       if (userId) {
-          sql += ' JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id) WHERE s.user_id = ?';
+          // User View: Dynamic calculation
+          sql = `
+            SELECT 
+              SUM(r.sub_pub_share * (1 - (u.percentage_share / 100))) as total_client_share,
+              SUM(r.sub_pub_share * (u.percentage_share / 100)) as total_admin_share,
+              SUM(r.sub_pub_share) as total_sub_pub_share
+            FROM reports r
+            JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id) 
+            JOIN users u ON s.user_id = u.id
+            WHERE s.user_id = ?
+          `;
           params.push(userId);
+      } else {
+          // Admin View: Stored values
+          sql = `
+            SELECT 
+              SUM(r.net_revenue) as total_net_revenue,
+              SUM(r.sub_pub_share) as total_sub_pub_share,
+              SUM(r.tbw_share) as total_tbw_share
+            FROM reports r
+          `;
       }
+      
       const [rows] = await pool.query(sql, params);
       return rows[0];
   },
 
   getTopSongs: async (userId = null, limit = 5) => {
-      let sql = `
-        SELECT 
-            COALESCE(s.title, r.title) as title,
-            SUM(r.sub_pub_share) as revenue
-        FROM reports r
-        JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
-      `;
+      let sql;
       const params = [];
       
       if (userId) {
-          sql += ' WHERE s.user_id = ?';
+          sql = `
+            SELECT 
+                COALESCE(s.title, r.title) as title,
+                SUM(r.sub_pub_share * (1 - (u.percentage_share / 100))) as revenue
+            FROM reports r
+            JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+            JOIN users u ON s.user_id = u.id
+            WHERE s.user_id = ?
+          `;
           params.push(userId);
+      } else {
+          sql = `
+            SELECT 
+                COALESCE(s.title, r.title) as title,
+                SUM(r.sub_pub_share) as revenue
+            FROM reports r
+            JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+          `;
       }
       
       sql += ' GROUP BY COALESCE(s.title, r.title) ORDER BY revenue DESC LIMIT ?';
@@ -282,13 +322,25 @@ const ReportModel = {
             WHERE 1=1
         `;
     } else if (type === 'songs') {
-        // Song revenue is gross revenue (sub_pub_share)
-        sql = `
-            SELECT COALESCE(s.title, r.title) as name, SUM(r.sub_pub_share) as revenue
-            FROM reports r
-            LEFT JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
-            WHERE 1=1
-        `;
+        if (userId) {
+            // User sees Net Revenue (after Admin Share deduction)
+            sql = `
+                SELECT COALESCE(s.title, r.title) as name, 
+                       SUM(r.sub_pub_share * (1 - (u.percentage_share / 100))) as revenue
+                FROM reports r
+                JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+                JOIN users u ON s.user_id = u.id
+                WHERE 1=1
+            `;
+        } else {
+            // Song revenue is gross revenue (sub_pub_share) for Admin
+            sql = `
+                SELECT COALESCE(s.title, r.title) as name, SUM(r.sub_pub_share) as revenue
+                FROM reports r
+                LEFT JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+                WHERE 1=1
+            `;
+        }
     }
 
     if (userId) {
@@ -338,18 +390,28 @@ const ReportModel = {
   getMonthlyRevenue: async (userId = null, year = null) => {
       // Ensure table structure first
       await ReportModel.ensureTable();
-      let sql = `
-        SELECT r.month, r.year, SUM(r.sub_pub_share) as revenue 
-        FROM reports r
-      `;
+      let sql;
       const params = [];
       
       let whereClause = ' WHERE 1=1';
 
       if (userId) {
-          sql += ' JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)';
+          // For user, calculate Net Revenue (Client Share)
+          sql = `
+            SELECT r.month, r.year, 
+                   SUM(r.sub_pub_share * (1 - (u.percentage_share / 100))) as revenue 
+            FROM reports r
+            JOIN songs s ON (r.song_id = s.id OR r.custom_id = s.song_id)
+            JOIN users u ON s.user_id = u.id
+          `;
           whereClause += ' AND s.user_id = ?';
           params.push(userId);
+      } else {
+          // For admin, use Sub Pub Share (Gross for Admin)
+          sql = `
+            SELECT r.month, r.year, SUM(r.sub_pub_share) as revenue 
+            FROM reports r
+          `;
       }
       
       if (year) {

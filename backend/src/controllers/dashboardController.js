@@ -42,7 +42,7 @@ const getDashboardStats = async (req, res, next) => {
     const topSongs = await ReportModel.getTopSongs(userId);
     
     const stats = {
-        totalRevenue: summary.total_sub_pub_share || 0, // Use sub_pub_share as main revenue for now
+        totalRevenue: userId ? (summary.total_client_share || 0) : (summary.total_sub_pub_share || 0),
         totalSubPubShare: summary.total_sub_pub_share || 0,
         totalTBWShare: summary.total_tbw_share || 0,
         totalSongs: songStats.total,
