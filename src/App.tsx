@@ -43,8 +43,6 @@ function App() {
             const link: any = document.querySelector("link[rel*='icon']") || document.createElement('link');
             link.type = 'image/x-icon';
             link.rel = 'shortcut icon';
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-            const baseUrl = apiUrl.replace('/api', '');
             
             // Check if full url or relative
             if (res.data.app_icon.startsWith('http')) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
-import { ArrowLeft, ArrowRight, Check, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 
 interface Region {
@@ -35,7 +35,8 @@ const Register = () => {
   const [selectedIds, setSelectedIds] = useState({
     province: '',
     city: '',
-    district: ''
+    district: '',
+    subdistrict: ''
   });
   
   const [error, setError] = useState('');
@@ -149,7 +150,7 @@ const Register = () => {
            district: '',
            subdistrict: ''
        }));
-       setSelectedIds({ province: '', city: '', district: '' });
+       setSelectedIds({ province: '', city: '', district: '', subdistrict: '' });
        return;
     }
 
@@ -163,18 +164,19 @@ const Register = () => {
 
     // Reset downstream data
     if (level === 'province') {
-        setSelectedIds(prev => ({ ...prev, province: id, city: '', district: '' }));
+        setSelectedIds(prev => ({ ...prev, province: id, city: '', district: '', subdistrict: '' }));
         setFormData(prev => ({ ...prev, province: name, city: '', district: '', subdistrict: '' }));
         setCities([]); setDistricts([]); setSubdistricts([]);
     } else if (level === 'city') {
-        setSelectedIds(prev => ({ ...prev, city: id, district: '' }));
+        setSelectedIds(prev => ({ ...prev, city: id, district: '', subdistrict: '' }));
         setFormData(prev => ({ ...prev, city: name, district: '', subdistrict: '' }));
         setDistricts([]); setSubdistricts([]);
     } else if (level === 'district') {
-        setSelectedIds(prev => ({ ...prev, district: id }));
+        setSelectedIds(prev => ({ ...prev, district: id, subdistrict: '' }));
         setFormData(prev => ({ ...prev, district: name, subdistrict: '' }));
         setSubdistricts([]);
     } else if (level === 'subdistrict') {
+        setSelectedIds(prev => ({ ...prev, subdistrict: id }));
         setFormData(prev => ({ ...prev, subdistrict: name }));
     }
   };
@@ -430,6 +432,7 @@ const Register = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">Sub-district</label>
                             <select
                                 name="subdistrict"
+                                value={selectedIds.subdistrict}
                                 onChange={(e) => handleRegionChange('subdistrict', e)}
                                 className="glass-input w-full"
                                 required

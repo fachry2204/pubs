@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Search, UserX, FileText, CheckCircle, Clock, XCircle, AlertCircle, Edit2, Eye, Trash2 } from 'lucide-react';
+import { Search, UserX, CheckCircle, Edit2, Eye, Trash2, XCircle } from 'lucide-react';
 
 const UserList = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -105,42 +105,10 @@ const UserList = () => {
       try {
           const res = await api.get(`/users/${user.id}`);
           setSelectedUser(res.data);
-          // Reset verification state
-          setVerificationMode('none');
-          setVerificationShare(res.data.percentage_share || 0);
           setShowViewModal(true);
       } catch (error) {
           console.error('Failed to fetch user details', error);
           alert('Failed to load user details');
-      }
-  };
-
-  const handleAcceptUser = async () => {
-      if (!selectedUser) return;
-      try {
-          await api.put(`/users/${selectedUser.id}`, {
-              status: 'accepted',
-              percentage_share: verificationShare
-          });
-          setShowViewModal(false);
-          fetchUsers();
-      } catch (error) {
-          console.error('Failed to accept user', error);
-          alert('Failed to accept user');
-      }
-  };
-
-  const handleRejectUser = async () => {
-      if (!selectedUser) return;
-      try {
-          await api.put(`/users/${selectedUser.id}`, {
-              status: 'rejected'
-          });
-          setShowViewModal(false);
-          fetchUsers();
-      } catch (error) {
-          console.error('Failed to reject user', error);
-          alert('Failed to reject user');
       }
   };
 
@@ -155,7 +123,7 @@ const UserList = () => {
               email: userData.email || '',
               whatsapp: userData.whatsapp || '',
               status: userData.status || 'pending',
-              percentage_share: userData.percentage_share || 0,
+              percentage_share: Math.floor(userData.percentage_share || 0),
               role: userData.role || 'user'
           });
           setShowStatusModal(true);
@@ -168,7 +136,7 @@ const UserList = () => {
               email: user.email || '',
               whatsapp: user.whatsapp || '',
               status: user.status || 'pending',
-              percentage_share: user.percentage_share || 0,
+              percentage_share: Math.floor(user.percentage_share || 0),
               role: user.role || 'user'
           });
           setShowStatusModal(true);
@@ -201,18 +169,6 @@ const UserList = () => {
       } catch (error) {
           console.error('Failed to update user', error);
           alert('Failed to update user status');
-      }
-  };
-
-  const handleGenerateContract = async () => {
-      if (!selectedUser) return;
-      try {
-          await api.post(`/users/${selectedUser.id}/contract`);
-          alert('Contract generated successfully! (Mock)');
-          // In real app, you might download a file here
-      } catch (error) {
-          console.error('Failed to generate contract', error);
-          alert('Failed to generate contract');
       }
   };
 
@@ -358,11 +314,17 @@ const UserList = () => {
                           <input 
                               type="number" 
                               value={quickShare}
-                              onChange={(e) => setQuickShare(Number(e.target.value))}
+                              onChange={(e) => setQuickShare(Math.floor(Number(e.target.value)))}
                               className="glass-input w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                               placeholder="e.g. 70"
                               min="0"
                               max="100"
+                              step="1"
+                              onKeyDown={(e) => {
+                                  if (e.key === '.' || e.key === ',') {
+                                      e.preventDefault();
+                                  }
+                              }}
                               autoFocus
                           />
                           <p className="text-xs text-gray-500 mt-1">Wajib diisi untuk pembagian hasil.</p>
@@ -506,11 +468,17 @@ const UserList = () => {
                                   <input 
                                       type="number" 
                                       value={statusForm.percentage_share}
-                                      onChange={(e) => setStatusForm({...statusForm, percentage_share: Number(e.target.value)})}
+                                      onChange={(e) => setStatusForm({...statusForm, percentage_share: Math.floor(Number(e.target.value))})}
                                       className="glass-input w-full pr-8"
                                       placeholder="e.g. 70"
                                       min="0"
                                       max="100"
+                                      step="1"
+                                      onKeyDown={(e) => {
+                                          if (e.key === '.' || e.key === ',') {
+                                              e.preventDefault();
+                                          }
+                                      }}
                                   />
                                   <span className="absolute right-3 top-2.5 text-gray-400 text-sm">%</span>
                               </div>

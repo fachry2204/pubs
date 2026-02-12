@@ -182,7 +182,7 @@ const UserAnalytics = () => {
                     formatter={(value: any) => formatCurrency(value)}
                   />
                   <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
-                    {analytics.map((entry, index) => (
+                    {analytics.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={`url(#gradient-${index % colors.length})`} stroke={colors[index % colors.length]} strokeWidth={1} />
                     ))}
                   </Bar>
