@@ -20,7 +20,14 @@ const storage = multer.diskStorage({
     }
     
     // Ensure directory exists
-    const dir = path.join(__dirname, '../../', folder);
+    // Use path.resolve to ensure absolute path relative to backend root
+    const dir = path.resolve(__dirname, '../../uploads', file.fieldname === 'report' ? 'reports' : 
+                                                         file.fieldname === 'contract' ? 'contracts' :
+                                                         (file.fieldname === 'logo' || file.fieldname === 'login_background' || file.fieldname === 'app_icon') ? 'logo' :
+                                                         file.fieldname === 'ktp' ? 'ktp' :
+                                                         file.fieldname === 'npwp' ? 'npwp' :
+                                                         file.fieldname === 'proof' ? 'proof' : '');
+    
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, { recursive: true });
     }

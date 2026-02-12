@@ -25,7 +25,8 @@ const Settings = () => {
       const res = await api.get('/settings');
       if (res.data) {
         setCompanyName(res.data.company_name || '');
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        // Use relative API path by default so it works on any domain
+        const apiUrl = import.meta.env.VITE_API_URL || '/api';
         const baseUrl = apiUrl.replace('/api', '');
 
         if (res.data.logo) {
