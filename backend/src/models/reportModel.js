@@ -218,6 +218,8 @@ const ReportModel = {
   },
 
   getTotalSummary: async (userId = null) => {
+      // Ensure table structure first
+      await ReportModel.ensureTable();
       let sql = `
         SELECT 
           SUM(r.net_revenue) as total_net_revenue,
@@ -334,6 +336,8 @@ const ReportModel = {
   },
   
   getMonthlyRevenue: async (userId = null, year = null) => {
+      // Ensure table structure first
+      await ReportModel.ensureTable();
       let sql = `
         SELECT r.month, r.year, SUM(r.sub_pub_share) as revenue 
         FROM reports r
