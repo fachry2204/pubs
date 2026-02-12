@@ -4,6 +4,36 @@ const PaymentModel = {
     ensureTable: async () => {
         const connection = await pool.getConnection();
         try {
+            await connection.query(`
+                CREATE TABLE IF NOT EXISTS payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    amount DECIMAL(15, 2) NOT NULL,
+                    note TEXT,
+                    payment_date DATE,
+                    month INT,
+                    year INT,
+                    status ENUM('pending', 'process', 'success') DEFAULT 'pending',
+                    proof_file VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            `);
+            
+            await connection.query(`
+                 CREATE TABLE IF NOT EXISTS writer_payments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    writer_name VARCHAR(255) NOT NULL,
+                    amount DECIMAL(15, 2) NOT NULL,
+                    month INT,
+                    year INT,
+                    status ENUM('pending', 'process', 'success') DEFAULT 'pending',
+                    proof_file VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
             // Check if status column exists in payments table
             const [columns] = await connection.query("SHOW COLUMNS FROM payments");
             const columnNames = columns.map(c => c.Field);

@@ -1,7 +1,24 @@
 const pool = require('../config/database');
 
 const ContractModel = {
+    ensureTable: async () => {
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS contracts (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    file_path VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+            `);
+        } catch (error) {
+            console.error('Error ensuring contracts table:', error);
+        }
+    },
+
     create: async (userId, filePath) => {
+        await ContractModel.ensureTable();
         const [result] = await pool.query(
             'INSERT INTO contracts (user_id, file_path) VALUES (?, ?)',
             [userId, filePath]

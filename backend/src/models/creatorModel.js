@@ -3,6 +3,28 @@ const pool = require('../config/database');
 const Creator = {
   ensureColumns: async () => {
     try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS creators (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            nik VARCHAR(50),
+            birth_place VARCHAR(100),
+            birth_date DATE,
+            address TEXT,
+            religion VARCHAR(50),
+            marital_status VARCHAR(50),
+            occupation VARCHAR(100),
+            nationality VARCHAR(50),
+            ktp_path VARCHAR(255),
+            npwp_path VARCHAR(255),
+            bank_name VARCHAR(100),
+            bank_account_name VARCHAR(100),
+            bank_account_number VARCHAR(50),
+            user_id INT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      
       const [check] = await pool.query("SHOW COLUMNS FROM creators LIKE 'user_id'");
       if (check.length === 0) {
         await pool.query("ALTER TABLE creators ADD COLUMN user_id INT NULL");
