@@ -82,6 +82,8 @@ const PaymentDetail = () => {
   const handleUpdateStatus = async () => {
     // Validation: If status is 'success' (Sudah Ditransfer), 
     // check if ALL writers are also 'success' (Sudah Ditransfer)
+
+
     if (status === 'success') {
         const pendingWriters = writers.filter((w: any) => {
              // If writer status is not defined yet, assume pending
@@ -95,7 +97,7 @@ const PaymentDetail = () => {
             return;
         }
     }
-
+    
     setIsUpdating(true);
     try {
         const formData = new FormData();

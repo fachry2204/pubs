@@ -17,6 +17,7 @@ import Analytics from './pages/admin/Analytics';
 import UserList from './pages/admin/UserList';
 import Payments from './pages/admin/Payments';
 import PaymentDetail from './pages/admin/PaymentDetail';
+import UserPaymentDetail from './pages/user/UserPaymentDetail';
 import UserCreators from './pages/user/UserCreators';
 import UserSongs from './pages/user/UserSongs';
 import UnderConstruction from './components/UnderConstruction';
@@ -96,7 +97,7 @@ function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="reports" element={<ReportList />} />
         <Route path="payments" element={<Payments />} />
-        <Route path="payments/:userId" element={<PaymentDetail />} />
+        <Route path="payments/:userId" element={<UserPaymentDetail />} />
         
         <Route path="contracts" element={<UnderConstruction title="Kontrak" />} />
         <Route path="account" element={<UnderConstruction title="Akun Saya" />} />
