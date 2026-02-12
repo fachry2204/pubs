@@ -186,7 +186,9 @@ const PaymentDetail = () => {
                   title: song.title,
                   song_id: song.song_id,
                   share_percent: writer.share_percent,
-                  amount: writer.amount
+                  amount: writer.amount,
+                  role: writer.role,
+                  creators: song.writers.map((w: any) => `${w.name} (${w.share_percent}%)`).join(', ')
               });
           });
       });
@@ -280,9 +282,9 @@ const PaymentDetail = () => {
                             onChange={(e) => setStatus(e.target.value)}
                             className="glass-input w-full"
                         >
-                            <option value="pending">Pending</option>
+                            <option value="pending">Belum Ditransfer</option>
                             <option value="process">Proses</option>
-                            <option value="success">Sudah Transfer</option>
+                            <option value="success">Sudah Ditransfer</option>
                         </select>
                     </div>
 
@@ -370,9 +372,9 @@ const PaymentDetail = () => {
                                                 onChange={(e) => setWriterStatuses(prev => ({ ...prev, [writer.name]: e.target.value }))}
                                                 className="glass-input w-full text-sm py-2"
                                             >
-                                                <option value="pending">Pending</option>
+                                                <option value="pending">Belum Ditransfer</option>
                                                 <option value="process">Proses</option>
-                                                <option value="success">Success</option>
+                                                <option value="success">Sudah Ditransfer</option>
                                             </select>
                                         </div>
 
@@ -448,7 +450,12 @@ const PaymentDetail = () => {
                                     {writer.songs.map((song: any, sIdx: number) => (
                                         <div key={sIdx} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200">
                                             <div>
-                                                <p className="font-medium text-gray-800 text-sm">{song.title}</p>
+                                                <p className="font-medium text-gray-800 text-sm">
+                                                    {song.title}
+                                                    <span className="ml-1 text-xs text-gray-500 font-normal">
+                                                        ({song.creators})
+                                                    </span>
+                                                </p>
                                                 <p className="text-xs text-gray-500">Share: {song.share_percent}%</p>
                                             </div>
                                             <span className="font-medium text-gray-700 text-sm">

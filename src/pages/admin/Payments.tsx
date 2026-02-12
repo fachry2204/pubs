@@ -62,11 +62,11 @@ const Payments = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'success':
-        return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">LUNAS</span>;
+        return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">SUDAH DITRANSFER</span>;
       case 'process':
         return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold border border-yellow-200">PROSES</span>;
       default:
-        return <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-bold border border-gray-200">BELUM BAYAR</span>;
+        return <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-bold border border-gray-200">BELUM DITRANSFER</span>;
     }
   };
 

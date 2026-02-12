@@ -261,7 +261,17 @@ const Analytics = () => {
                       ))}
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
+                  <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#9ca3af', fontSize: 12}} 
+                    dy={10} 
+                    tickFormatter={(val) => {
+                        const date = new Date(0, val - 1);
+                        return date.toLocaleString('default', { month: 'short' });
+                    }}
+                  />
                   <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
                   <Tooltip 
                     cursor={{fill: 'transparent'}}
