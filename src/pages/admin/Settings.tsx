@@ -4,6 +4,8 @@ import { Save, Upload } from 'lucide-react';
 
 const Settings = () => {
   const [companyName, setCompanyName] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   
@@ -12,6 +14,9 @@ const Settings = () => {
 
   const [appIcon, setAppIcon] = useState<File | null>(null);
   const [appIconPreview, setAppIconPreview] = useState<string | null>(null);
+
+  const [socialImage, setSocialImage] = useState<File | null>(null);
+  const [socialImagePreview, setSocialImagePreview] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -25,6 +30,8 @@ const Settings = () => {
       const res = await api.get('/settings');
       if (res.data) {
         setCompanyName(res.data.company_name || '');
+        setSeoTitle(res.data.seo_title || '');
+        setSeoDescription(res.data.seo_description || '');
         // Use relative API path by default so it works on any domain
         const apiUrl = import.meta.env.VITE_API_URL || '/api';
         const baseUrl = apiUrl.replace('/api', '');
@@ -45,6 +52,12 @@ const Settings = () => {
             const iconPath = res.data.app_icon.replace(/\\/g, '/');
             const iconUrl = iconPath.startsWith('http') ? iconPath : `${baseUrl}/${iconPath}`;
             setAppIconPreview(iconUrl);
+        }
+
+        if (res.data.social_image) {
+            const socialPath = res.data.social_image.replace(/\\/g, '/');
+            const socialUrl = socialPath.startsWith('http') ? socialPath : `${baseUrl}/${socialPath}`;
+            setSocialImagePreview(socialUrl);
         }
       }
     } catch (error) {
@@ -76,6 +89,14 @@ const Settings = () => {
     }
   };
 
+  const handleSocialImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSocialImage(file);
+      setSocialImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -83,6 +104,8 @@ const Settings = () => {
 
     const formData = new FormData();
     formData.append('company_name', companyName);
+    formData.append('seo_title', seoTitle);
+    formData.append('seo_description', seoDescription);
     if (logo) {
       formData.append('logo', logo);
     }
@@ -91,6 +114,9 @@ const Settings = () => {
     }
     if (appIcon) {
         formData.append('app_icon', appIcon);
+    }
+    if (socialImage) {
+        formData.append('social_image', socialImage);
     }
 
     try {
@@ -126,6 +152,48 @@ const Settings = () => {
             className="glass-input"
             placeholder="Enter company name"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
+          <input
+            type="text"
+            value={seoTitle}
+            onChange={(e) => setSeoTitle(e.target.value)}
+            className="glass-input"
+            placeholder="Enter SEO title"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">SEO Description</label>
+          <textarea
+            value={seoDescription}
+            onChange={(e) => setSeoDescription(e.target.value)}
+            className="glass-input h-24 resize-none"
+            placeholder="Enter SEO description"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Social Share Image (OG Image)</label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-full sm:w-64 h-32 border border-white/40 rounded-md overflow-hidden flex items-center justify-center bg-white/50 relative shrink-0">
+              {socialImagePreview ? (
+                <img src={socialImagePreview} alt="Social Preview" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-gray-400 text-xs">No Social Image</span>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+                <label className="cursor-pointer bg-[#7A4A88] text-white px-4 py-2 rounded-md hover:bg-[#6a3d77] transition-colors flex items-center text-sm w-full sm:w-auto justify-center">
+                  <Upload size={16} className="mr-2" />
+                  <span>Upload Image</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleSocialImageChange} />
+                </label>
+                <span className="text-xs text-gray-500">Recommended size: 1200x630 pixels</span>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -35,9 +35,80 @@ function App() {
       try {
         const res = await api.get('/settings');
         if (res.data) {
-          if (res.data.company_name) {
+          // SEO Title
+          if (res.data.seo_title) {
+            document.title = res.data.seo_title;
+          } else if (res.data.company_name) {
             document.title = res.data.company_name;
           }
+
+          // SEO Description
+          if (res.data.seo_description) {
+            let metaDesc = document.querySelector("meta[name='description']");
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.setAttribute('name', 'description');
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.setAttribute('content', res.data.seo_description);
+          }
+          
+          // Social Cards (Open Graph & Twitter)
+          const updateMetaTag = (attributeName: string, attributeValue: string, content: string) => {
+             let element = document.querySelector(`meta[${attributeName}='${attributeValue}']`);
+             if (!element) {
+                 element = document.createElement('meta');
+                 element.setAttribute(attributeName, attributeValue);
+                 document.head.appendChild(element);
+             }
+             element.setAttribute('content', content);
+          };
+
+          const title = res.data.seo_title || res.data.company_name || document.title;
+          const description = res.data.seo_description || '';
+          
+          // Open Graph / Facebook
+          updateMetaTag('property', 'og:type', 'website');
+          updateMetaTag('property', 'og:url', window.location.href);
+          updateMetaTag('property', 'og:title', title);
+          updateMetaTag('property', 'og:description', description);
+          
+          // Twitter
+          updateMetaTag('name', 'twitter:card', 'summary_large_image');
+          updateMetaTag('property', 'twitter:url', window.location.href);
+          updateMetaTag('name', 'twitter:title', title);
+          updateMetaTag('name', 'twitter:description', description);
+
+          // Social Image
+          let imageUrl = '';
+          const origin = window.location.origin;
+          
+          if (res.data.social_image) {
+              const socialPath = res.data.social_image.replace(/\\/g, '/');
+              if (socialPath.startsWith('http')) {
+                  imageUrl = socialPath;
+              } else {
+                   // Ensure it starts with /
+                   const cleanPath = socialPath.startsWith('/') ? socialPath : `/${socialPath}`;
+                   imageUrl = `${origin}${cleanPath}`;
+              }
+          } else if (res.data.app_icon) {
+               // Fallback to app icon
+               const iconPath = res.data.app_icon.replace(/\\/g, '/');
+               if (iconPath.startsWith('http')) {
+                   imageUrl = iconPath;
+               } else {
+                   // Match the logic used for favicon link below
+                   const cleanPath = iconPath.startsWith('uploads/') ? `/${iconPath}` : `/uploads/${iconPath}`;
+                   imageUrl = `${origin}${cleanPath}`;
+               }
+          }
+
+          if (imageUrl) {
+              updateMetaTag('property', 'og:image', imageUrl);
+              updateMetaTag('name', 'twitter:image', imageUrl);
+          }
+
           
           if (res.data.app_icon) {
             const link: any = document.querySelector("link[rel*='icon']") || document.createElement('link');

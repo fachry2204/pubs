@@ -28,6 +28,11 @@ const updateSettings = async (req, res, next) => {
             data.app_icon = '/uploads/logo/' + req.files['app_icon'][0].filename;
         }
 
+        // Handle Social Image
+        if (req.files && req.files['social_image'] && req.files['social_image'][0]) {
+            data.social_image = '/uploads/logo/' + req.files['social_image'][0].filename;
+        }
+
         console.log('Updating settings with:', data); // Debug log
         await SettingModel.update(data);
         res.json({ message: 'Settings updated' });

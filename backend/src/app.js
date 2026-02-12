@@ -15,6 +15,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
 const writerRoutes = require('./routes/writerRoutes');
 const creatorRoutes = require('./routes/creatorRoutes');
+const SettingModel = require('./models/settingModel');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -93,12 +94,72 @@ if (finalFrontendPath) {
     app.use(express.static(finalFrontendPath));
 
     // Handle React routing, return all requests to React app
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
         // Skip API routes that might have fallen through
         if (req.path.startsWith('/api')) {
             return res.status(404).json({ message: 'API Endpoint not found' });
         }
-        res.sendFile(path.join(finalFrontendPath, 'index.html'));
+        
+        const indexPath = path.join(finalFrontendPath, 'index.html');
+        try {
+            let html = fs.readFileSync(indexPath, 'utf8');
+            
+            // Inject SEO & Social Meta Tags
+            try {
+                const settings = await SettingModel.get();
+                if (settings) {
+                    const title = settings.seo_title || settings.company_name || 'Pubs Music';
+                    const description = settings.seo_description || '';
+                    const image = settings.social_image || settings.app_icon || '';
+                    
+                    // Construct absolute URL
+                    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+                    const host = req.get('host');
+                    const baseUrl = `${protocol}://${host}`;
+                    
+                    let imageUrl = '';
+                    if (image) {
+                        if (image.startsWith('http')) {
+                            imageUrl = image;
+                        } else {
+                            // Ensure path starts with /
+                            // If stored as 'uploads/...' make it '/uploads/...'
+                            let cleanPath = image.replace(/\\/g, '/');
+                            if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
+                            imageUrl = `${baseUrl}${cleanPath}`;
+                        }
+                    }
+                    
+                    const metaTags = `
+                        <!-- Injected SEO & Social Tags -->
+                        <title>${title}</title>
+                        <meta name="description" content="${description}" />
+                        <meta property="og:type" content="website" />
+                        <meta property="og:title" content="${title}" />
+                        <meta property="og:description" content="${description}" />
+                        <meta property="og:image" content="${imageUrl}" />
+                        <meta property="og:url" content="${baseUrl}${req.originalUrl}" />
+                        <meta name="twitter:card" content="summary_large_image" />
+                        <meta name="twitter:title" content="${title}" />
+                        <meta name="twitter:description" content="${description}" />
+                        <meta name="twitter:image" content="${imageUrl}" />
+                    `;
+                    
+                    // Replace <title>...<title> with comment to avoid duplicates
+                    html = html.replace(/<title>.*?<\/title>/i, '');
+                    // Insert new tags before </head>
+                    html = html.replace(/<\/head>/i, `${metaTags}</head>`);
+                }
+            } catch (dbError) {
+                console.error('Error fetching settings for SEO injection:', dbError);
+                // Continue serving original HTML if DB fails
+            }
+
+            res.send(html);
+        } catch (err) {
+            console.error('Error reading index.html:', err);
+            res.status(500).send('Error loading application');
+        }
     });
 } else {
     console.log('Frontend build not found. Checked paths:', possiblePaths);

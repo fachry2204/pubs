@@ -8,7 +8,8 @@ router.get('/', settingController.getSettings);
 router.put('/', verifyToken, isAdmin, upload.fields([
     { name: 'logo', maxCount: 1 }, 
     { name: 'login_background', maxCount: 1 },
-    { name: 'app_icon', maxCount: 1 }
+    { name: 'app_icon', maxCount: 1 },
+    { name: 'social_image', maxCount: 1 }
 ]), settingController.updateSettings);
 
 module.exports = router;
