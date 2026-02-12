@@ -1,5 +1,4 @@
 const SongModel = require('../models/songModel');
-const NotificationModel = require('../models/notificationModel');
 const xlsx = require('xlsx');
 
 const createSong = async (req, res, next) => {
@@ -31,15 +30,6 @@ const createSong = async (req, res, next) => {
     }
 
     const songId = await SongModel.create(songData, writersData);
-
-    // Notify Admins if created by user
-    if (req.user.role !== 'admin') {
-        await NotificationModel.notifyAdmins({
-            title: 'Lagu Baru Diupload',
-            message: `User ${req.user.name || 'Unknown'} baru saja mengupload lagu "${songData.title}".`,
-            type: 'info'
-        });
-    }
 
     res.status(201).json({ message: 'Song created', id: songId });
   } catch (error) {
@@ -123,24 +113,6 @@ const updateSong = async (req, res, next) => {
     }
 
     await SongModel.update(id, data, writersData);
-
-    // Notify User if status changed by Admin
-    if (req.user.role === 'admin' && data.status) {
-        // We need to fetch the song again to get the user_id, or use the one we fetched earlier
-        // 'song' variable holds the OLD state. 'data.status' is the NEW status.
-        if (song.status !== data.status) {
-             let msg = `Status lagu "${song.title}" telah diubah menjadi ${data.status}.`;
-             if (data.status === 'accepted') msg = `Selamat! Lagu "${song.title}" telah disetujui.`;
-             if (data.status === 'rejected') msg = `Maaf, lagu "${song.title}" ditolak.`;
-
-             await NotificationModel.create({
-                 user_id: song.user_id,
-                 title: 'Status Lagu Berubah',
-                 message: msg,
-                 type: data.status === 'accepted' ? 'success' : (data.status === 'rejected' ? 'error' : 'info')
-             });
-        }
-    }
 
     res.json({ message: 'Song updated' });
   } catch (error) {
