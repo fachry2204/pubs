@@ -70,4 +70,25 @@ const getMe = async (req, res, next) => {
     }
 }
 
-module.exports = { register, login, getMe };
+const updateProfile = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { email, password } = req.body;
+        
+        // Only allow updating email and password
+        const updateData = {};
+        if (email) updateData.email = email;
+        if (password) updateData.password = password;
+        
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ message: 'No valid fields to update' });
+        }
+        
+        await UserModel.update(userId, updateData);
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { register, login, getMe, updateProfile };

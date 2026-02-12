@@ -21,6 +21,7 @@ import UserPaymentDetail from './pages/user/UserPaymentDetail';
 import UserPayments from './pages/user/UserPayments';
 import UserCreators from './pages/user/UserCreators';
 import UserSongs from './pages/user/UserSongs';
+import UserAccount from './pages/user/UserAccount';
 import UnderConstruction from './components/UnderConstruction';
 import Maintenance from './pages/Maintenance';
 import api from './services/api';
@@ -101,7 +102,7 @@ function App() {
         <Route path="payments/:userId" element={<UserPaymentDetail />} />
         
         <Route path="contracts" element={<UnderConstruction title="Kontrak" />} />
-        <Route path="account" element={<UnderConstruction title="Akun Saya" />} />
+        <Route path="account" element={<UserAccount />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />
