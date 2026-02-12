@@ -210,7 +210,9 @@ const Payments = () => {
                   </div>
                   <div className="pl-4 border-l border-gray-100 flex flex-col items-center justify-center gap-2">
                       {getStatusBadge(user.payment_status)}
-                      <ChevronRight size={24} className="text-gray-400 group-hover:text-purple-600 transition-colors" />
+                      <button className="px-4 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-md text-xs font-semibold border border-purple-200 transition-colors flex items-center gap-1 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600">
+                        Lihat <ChevronRight size={14} />
+                      </button>
                   </div>
                 </div>
               </div>
