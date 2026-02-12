@@ -12,6 +12,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const userRoutes = require('./routes/userRoutes');
 const writerRoutes = require('./routes/writerRoutes');
 const creatorRoutes = require('./routes/creatorRoutes');
@@ -49,6 +50,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/contracts', contractRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // --- SERVE FRONTEND (SINGLE DOMAIN) ---
 // Serve static files from React build (frontend/dist)

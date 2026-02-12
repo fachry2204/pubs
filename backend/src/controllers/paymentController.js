@@ -1,4 +1,5 @@
 const PaymentModel = require('../models/paymentModel');
+const NotificationModel = require('../models/notificationModel');
 
 const createPayment = async (req, res, next) => {
     try {
@@ -61,6 +62,26 @@ const updateStatus = async (req, res, next) => {
             });
         }
         
+        // Notify User
+        const monthName = new Date(0, month - 1).toLocaleString('default', { month: 'long' });
+        let title = 'Update Pembayaran';
+        let message = `Status pembayaran untuk periode ${monthName} ${year} telah diperbarui menjadi: ${status}.`;
+        
+        if (status === 'success') {
+            title = 'Pembayaran Berhasil';
+            message = `Hore! Pembayaran royalti periode ${monthName} ${year} telah ditransfer.`;
+        } else if (status === 'process') {
+            title = 'Pembayaran Diproses';
+            message = `Pembayaran royalti periode ${monthName} ${year} sedang diproses.`;
+        }
+
+        await NotificationModel.create({
+            user_id,
+            title,
+            message,
+            type: status === 'success' ? 'success' : 'info'
+        });
+
         res.json({ message: 'Status updated' });
     } catch (error) {
         next(error);

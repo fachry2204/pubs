@@ -1,5 +1,6 @@
 const xlsx = require('xlsx');
 const ReportModel = require('../models/reportModel');
+const NotificationModel = require('../models/notificationModel');
 const pool = require('../config/database');
 
 const uploadReport = async (req, res, next) => {
@@ -79,6 +80,34 @@ const uploadReport = async (req, res, next) => {
         total_records: reportsToInsert.length,
         status: errors.length > 0 ? 'Partial' : 'Success'
       });
+
+      // Notify Users
+      // Find distinct song_ids in inserted reports, then find owners
+      try {
+          // Get unique internal song IDs from the inserted batch
+          const uniqueSongIds = [...new Set(reportsToInsert.map(r => r.song_id).filter(id => id))];
+          
+          if (uniqueSongIds.length > 0) {
+              // Find users who own these songs
+              const [rows] = await pool.query(
+                  'SELECT DISTINCT user_id FROM songs WHERE id IN (?)',
+                  [uniqueSongIds]
+              );
+              
+              const monthName = new Date(0, currentMonth - 1).toLocaleString('default', { month: 'long' });
+              
+              for (const row of rows) {
+                  await NotificationModel.create({
+                      user_id: row.user_id,
+                      title: 'Laporan Baru',
+                      message: `Laporan royalti baru untuk periode ${monthName} ${currentYear} telah tersedia.`,
+                      type: 'info'
+                  });
+              }
+          }
+      } catch (notifyErr) {
+          console.error('Failed to notify users about report:', notifyErr);
+      }
     }
 
     res.json({
