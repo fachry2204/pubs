@@ -1,0 +1,15 @@
+Versi 1.0.2 (Update Analitik & Dashboard)
+
+Fitur Baru:
+- Filter Bulan dan Tahun pada halaman Analitik dan Pembayaran
+- Grafik Revenue Trend (Bar Chart 3D) dengan gradasi warna
+- Diagram Distribusi Share (Pie Chart 3D/Donut) dengan label persentase
+- Kartu statistik lagu (Total, Pending, Diterima) di Dashboard Admin
+- Kartu Top User, Top Creator, dan Top Song di halaman Analitik
+
+Perbaikan:
+- Perbaikan format mata uang (menangani nilai NaN/Null)
+- Sinkronisasi data antara halaman Analitik dan Pembayaran
+- Perbaikan logika filter pada grafik dan tabel analitik
+- Penyesuaian tampilan dashboard user (menghapus kartu yang tidak relevan)
+- Perbaikan status lagu diterima (Accepted) pada statistik dashboard

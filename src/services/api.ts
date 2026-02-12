@@ -1,7 +1,23 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+  // 1. If VITE_API_URL is explicitly set (e.g. in .env), use it
+  if (import.meta.env.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL;
+  }
+  
+  // 2. If running on localhost (development), assume backend is on port 5000
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+  }
+
+  // 3. If running on production (Plesk/Domain), use relative path '/api'
+  // This works because in Plesk, Frontend and Backend are served from the same domain
+  return '/api';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseUrl(),
 });
 
 api.interceptors.request.use((config) => {
