@@ -15,10 +15,10 @@ const createCreator = async (req, res, next) => {
     // Handle multiple file uploads
     if (req.files) {
         if (req.files['ktp'] && req.files['ktp'][0]) {
-            data.ktp_path = 'uploads/ktp/' + req.files['ktp'][0].filename;
+            data.ktp_path = '/uploads/ktp/' + req.files['ktp'][0].filename;
         }
         if (req.files['npwp'] && req.files['npwp'][0]) {
-            data.npwp_path = 'uploads/npwp/' + req.files['npwp'][0].filename;
+            data.npwp_path = '/uploads/npwp/' + req.files['npwp'][0].filename;
         }
     }
     
@@ -70,10 +70,10 @@ const updateCreator = async (req, res, next) => {
     // Handle multiple file uploads
     if (req.files) {
         if (req.files['ktp'] && req.files['ktp'][0]) {
-            data.ktp_path = 'uploads/ktp/' + req.files['ktp'][0].filename;
+            data.ktp_path = '/uploads/ktp/' + req.files['ktp'][0].filename;
         }
         if (req.files['npwp'] && req.files['npwp'][0]) {
-            data.npwp_path = 'uploads/npwp/' + req.files['npwp'][0].filename;
+            data.npwp_path = '/uploads/npwp/' + req.files['npwp'][0].filename;
         }
     }
 

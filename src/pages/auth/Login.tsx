@@ -51,16 +51,17 @@ const Login = () => {
 
           if (res.data.logo) {
             const logoPath = res.data.logo.replace(/\\/g, '/');
+            // If path already contains uploads/, use it directly relative to domain root
             const url = logoPath.startsWith('http') 
               ? logoPath 
-              : `${baseUrl}/${logoPath}`;
+              : logoPath.startsWith('uploads/') ? `/${logoPath}` : `/uploads/${logoPath}`;
             setLogoUrl(url);
           }
           if (res.data.login_background) {
             const bgPath = res.data.login_background.replace(/\\/g, '/');
             const url = bgPath.startsWith('http') 
               ? bgPath 
-              : `${baseUrl}/${bgPath}`;
+              : bgPath.startsWith('uploads/') ? `/${bgPath}` : `/uploads/${bgPath}`;
             setBgUrl(url);
           }
           if (res.data.company_name) {

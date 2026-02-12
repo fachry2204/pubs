@@ -23,11 +23,10 @@ const Sidebar = () => {
           }
           if (res.data.logo) {
              const logoPath = res.data.logo.replace(/\\/g, '/');
-             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-             const baseUrl = apiUrl.replace('/api', '');
+             // Absolute path handling
              const logoUrl = logoPath.startsWith('http') 
                ? logoPath 
-               : `${baseUrl}/${logoPath}`;
+               : logoPath.startsWith('uploads/') ? `/${logoPath}` : `/uploads/${logoPath}`;
              setLogo(logoUrl);
           }
         }

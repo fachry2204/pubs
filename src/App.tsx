@@ -44,7 +44,8 @@ function App() {
             if (res.data.app_icon.startsWith('http')) {
                 link.href = res.data.app_icon;
             } else {
-                link.href = `${baseUrl}/${res.data.app_icon.replace(/\\/g, '/')}`;
+                const iconPath = res.data.app_icon.replace(/\\/g, '/');
+                link.href = iconPath.startsWith('uploads/') ? `/${iconPath}` : `/uploads/${iconPath}`;
             }
             
             document.getElementsByTagName('head')[0].appendChild(link);
