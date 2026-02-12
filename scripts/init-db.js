@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,14 +9,25 @@ const __dirname = path.dirname(__filename);
 // Load env from backend/.env (assuming script runs from root)
 const rootDir = path.resolve(__dirname, '..');
 const backendDir = path.join(rootDir, 'backend');
-const envPath = path.join(backendDir, '.env');
 
-if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-} else {
-    // Try loading from root .env if backend/.env doesn't exist
-    dotenv.config({ path: path.join(rootDir, '.env') });
+// Helper to parse .env file manually without dotenv dependency
+function loadEnv(filePath) {
+    if (!fs.existsSync(filePath)) return;
+    const content = fs.readFileSync(filePath, 'utf8');
+    content.split('\n').forEach(line => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+            const key = match[1].trim();
+            const value = match[2].trim().replace(/^['"]|['"]$/g, '');
+            if (!process.env[key]) {
+                process.env[key] = value;
+            }
+        }
+    });
 }
+
+loadEnv(path.join(backendDir, '.env'));
+loadEnv(path.join(rootDir, '.env'));
 
 // Configuration
 const dbHost = process.env.DB_HOST || 'localhost';
