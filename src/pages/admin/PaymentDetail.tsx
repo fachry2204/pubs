@@ -80,6 +80,22 @@ const PaymentDetail = () => {
   };
 
   const handleUpdateStatus = async () => {
+    // Validation: If status is 'success' (Sudah Ditransfer), 
+    // check if ALL writers are also 'success' (Sudah Ditransfer)
+    if (status === 'success') {
+        const pendingWriters = writers.filter((w: any) => {
+             // If writer status is not defined yet, assume pending
+             const wStatus = writerStatuses[w.name] || w.payment_status || 'pending';
+             return wStatus !== 'success';
+        });
+
+        if (pendingWriters.length > 0) {
+            const names = pendingWriters.map((w: any) => w.name).join(', ');
+            alert(`Tidak dapat mengubah status menjadi "Sudah Ditransfer".\n\nMasih ada pencipta yang belum ditransfer:\n${names}\n\nMohon selesaikan pembayaran ke semua pencipta terlebih dahulu.`);
+            return;
+        }
+    }
+
     setIsUpdating(true);
     try {
         const formData = new FormData();
