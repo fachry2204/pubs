@@ -90,7 +90,7 @@ Karena kita ingin build di server, kita perlu menjalankan perintah build di Ples
 1.  **Jalankan Build Script**:
     *   Buka menu **Node.js**.
     *   Klik tombol **Run Script**.
-    *   Pilih script: **build**.
+    *   Pilih script: **build:plesk** (JANGAN pilih "build" biasa, karena "build" biasa akan mencoba backup database yang menyebabkan error di Plesk).
     *   Tunggu hingga proses selesai. Ini akan:
         1.  Menginstall dependency.
         2.  Melakukan build React (Vite).
