@@ -151,9 +151,9 @@ const Payments = () => {
               className="glass-input w-40"
             >
               <option value="all">Semua Status</option>
-              <option value="pending">Belum Bayar</option>
+              <option value="pending">Belum Ditransfer</option>
               <option value="process">Proses</option>
-              <option value="success">Lunas</option>
+              <option value="success">Sudah Ditransfer</option>
             </select>
           </div>
           <button 

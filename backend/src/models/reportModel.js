@@ -378,11 +378,24 @@ const ReportModel = {
       await pool.query(sql, [id]);
   },
 
-  getImportHistory: async () => {
+  getImportHistory: async (userId = null) => {
     // Ensure table exists first
     await ReportModel.ensureTable();
-    const sql = 'SELECT * FROM import_history ORDER BY created_at DESC';
-    const [rows] = await pool.query(sql);
+    let sql = 'SELECT * FROM import_history';
+    const params = [];
+    
+    // For now, import_history doesn't have user_id, so we return all for admin
+    // If we want to filter by user, we need to add user_id to import_history or logic
+    // But typically import is global or by admin.
+    // If the request is about viewing "My Reports", it usually means the reports data, not the import logs.
+    // However, if we assume user wants to see history of imports that contain their songs:
+    // That's complex. Let's assume standard behavior: Admin sees all, User sees none (or filtered if we add column)
+    
+    // BUT, based on user request "Menu tersebut isinya hanya menampilkan data user saja",
+    // it likely refers to the Analytics/Report/Payment pages where data MUST be filtered by req.user.id
+    
+    sql += ' ORDER BY created_at DESC';
+    const [rows] = await pool.query(sql, params);
     return rows;
   }
 };

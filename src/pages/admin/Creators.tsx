@@ -168,22 +168,34 @@ const CreatorModal = ({ isOpen, onClose, creator }: { isOpen: boolean; onClose: 
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {paginatedSongs.map((song) => (
-                                    <tr key={song.id}>
-                                        <td className="px-4 py-2 text-sm text-gray-900">{song.title}</td>
-                                        <td className="px-4 py-2 text-sm text-gray-500">{song.performer}</td>
-                                        <td className="px-4 py-2 text-sm text-gray-500">{song.genre}</td>
-                                        <td className="px-4 py-2 text-sm">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase
-                                                ${song.status === 'accepted' ? 'bg-green-100 text-green-800' : 
-                                                  song.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                                                  song.status === 'review' ? 'bg-orange-100 text-orange-800' :
-                                                  'bg-yellow-100 text-yellow-800'}`}>
-                                                {song.status || 'Pending'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {paginatedSongs.map((song) => {
+                                    // Find share percent for this creator
+                                    const creatorShare = song.writers?.find((w: any) => w.name === creator.name)?.share_percent;
+                                    
+                                    return (
+                                        <tr key={song.id}>
+                                            <td className="px-4 py-2 text-sm text-gray-900">{song.title}</td>
+                                            <td className="px-4 py-2 text-sm text-gray-500">{song.performer}</td>
+                                            <td className="px-4 py-2 text-sm text-gray-500">
+                                                {song.genre}
+                                                {creatorShare && (
+                                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                        {creatorShare}%
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-2 text-sm">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase
+                                                    ${song.status === 'accepted' ? 'bg-green-100 text-green-800' : 
+                                                      song.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                                                      song.status === 'review' ? 'bg-orange-100 text-orange-800' :
+                                                      'bg-yellow-100 text-yellow-800'}`}>
+                                                    {song.status || 'Pending'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

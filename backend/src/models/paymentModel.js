@@ -177,10 +177,24 @@ const PaymentModel = {
             let creatorDetails = {};
 
             if (songIds.length > 0) {
-                const [writerRows] = await connection.query(
-                    'SELECT * FROM writers WHERE song_id IN (?)',
-                    [songIds]
-                );
+                let writerSql = 'SELECT * FROM writers WHERE song_id IN (?)';
+                const writerParams = [songIds];
+
+                // If user is not admin, filter writers to only show those belonging to the user's songs
+                // Actually, if we filter by userId above, we already get songs belonging to the user.
+                // But for writers, a song might have multiple writers.
+                // If the user is a Publisher/Admin, they see all writers.
+                // If the user is a songwriter (User role), they typically only see themselves? 
+                // Or if they are a publisher-client, they see all writers under their catalog.
+                // Based on "di pembayaran tampilkan data user sesuai dengan pencipta yang user tersebut miliki":
+                // If the user is the owner of the song (which they are if we filtered by userId), 
+                // they should see all writers for that song because they are responsible for distributing (or just viewing).
+                
+                // However, if the request implies filtering the *list of writers* displayed:
+                // Let's assume standard behavior: Show all writers for the songs owned by the user.
+                // The current logic does this because we query writers by song_ids, and song_ids are already filtered by user_id.
+                
+                const [writerRows] = await connection.query(writerSql, writerParams);
                 writers = writerRows;
 
                 // Fetch creator details by matching names
