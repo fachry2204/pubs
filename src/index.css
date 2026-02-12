@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #F3F3F9;
+    color: #343a40;
+    min-height: 100vh;
+}
+
+@layer components {
+    .glass-panel {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    }
+
+    .glass-input {
+        @apply w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-accent-pink bg-white transition-all duration-200 placeholder-gray-400 text-gray-700;
+    }
+
+    .glass-button {
+        @apply px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md shadow-md hover:shadow-lg hover:opacity-90 focus:outline-none transition-all duration-200;
+    }
+    
+    .glass-card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    }
+}

@@ -1,0 +1,13 @@
+Versi 1.0.1 (Update Pembayaran & Settings)
+
+Fitur Baru:
+- Perhitungan Pembayaran (Payment Calculation) dengan filter Status, Bulan, dan Tahun
+- Detail Pembayaran User dengan rincian per Pencipta (Writer)
+- Status Transfer Pembayaran (Pending, Proses, Lunas)
+- Upload Bukti Transfer pada detail pembayaran
+- Filter Status Transaksi di halaman Pembayaran
+
+Perbaikan:
+- Fix upload Favicon di menu Settings
+- Fix tampilan mata uang (tanpa desimal)
+- Optimasi performa perhitungan royalti
