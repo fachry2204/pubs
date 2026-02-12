@@ -118,6 +118,18 @@ Akses domain Anda (`https://domainanda.com`). Aplikasi seharusnya sudah berjalan
 
 ### Troubleshooting
 
+*   **Error "We're sorry, but something went wrong"**:
+    *   Ini berarti aplikasi Node.js **CRASH** saat baru menyala.
+    *   **Solusi Node.js v25+ (UPDATE)**: Kode sudah saya update untuk support Node.js versi terbaru (v25). Saya sudah mengganti `bcrypt` (native) dengan `bcryptjs` (JavaScript murni) dan menghapus `sharp`.
+    *   **Langkah Perbaikan**:
+        1.  **Upload Ulang** file `backend/package.json` dan folder `backend/src` ke Plesk (overwrite file lama).
+        2.  Masuk ke folder `backend` di File Manager Plesk.
+        3.  **HAPUS** folder `node_modules` di dalam `backend`.
+        4.  Klik tombol **NPM Install** lagi (atau jalankan `npm install` di terminal dalam folder `backend`).
+        5.  Restart App.
+    *   **Penyebab Utama 2 (Dependency Kurang)**: Pastikan folder `backend/node_modules` ada isinya setelah install.
+    *   **Cek Log**: Buka menu **Logs** di Plesk jika masih error.
+
 *   **Error 500 / 403 / 404**:
     *   Cek **Logs** di dashboard Plesk.
     *   Pastikan **Document Root** di setting Node.js mengarah ke folder yang ada (`backend/public`).

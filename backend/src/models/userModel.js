@@ -1,5 +1,5 @@
 const pool = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const UserModel = {
   // Check if columns exist and add them if not
