@@ -91,7 +91,8 @@ for (const p of possiblePaths) {
 
 if (finalFrontendPath) {
     console.log('Serving frontend from:', finalFrontendPath);
-    app.use(express.static(finalFrontendPath));
+    // Disable index.html serving to force root requests to go through our SEO injector
+    app.use(express.static(finalFrontendPath, { index: false }));
 
     // Handle React routing, return all requests to React app
     app.get('*', async (req, res) => {
