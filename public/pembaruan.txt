@@ -8,7 +8,7 @@ Fitur Baru:
   * Modal detail untuk Data Pencipta (Bank, Dokumen, dll)
 
 Perbaikan:
-- Perubahan label "Share To Ruang Musik" menjadi "Share Revenue" pada dashboard user
+- Perubahan label "Share ke 13 Nadi Pustaka" menjadi "Share Revenue" pada dashboard user
 - Penambahan kolom WhatsApp dan Alamat Lengkap pada database user
 - Optimasi UX form register dengan validasi bertahap
 
@@ -21,7 +21,7 @@ Fitur Baru:
 
 Perbaikan:
 - Penyesuaian istilah pada Report & Analitik User:
-  * "TBW Share" menjadi "Share To Ruang Musik"
+  * "TBW Share" menjadi "Share ke 13 Nadi Pustaka"
   * "Sub Publisher Share" menjadi "Total Revenue"
   * "Net Revenue" menjadi "Revenue saya"
 - Pemisahan logika tampilan Admin dan User untuk keamanan data

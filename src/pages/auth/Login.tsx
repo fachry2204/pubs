@@ -10,7 +10,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bgUrl, setBgUrl] = useState<string | null>(null);
-  const [companyName, setCompanyName] = useState('CMS Publishing RuangMusik');
+  const [companyName, setCompanyName] = useState('13 Nadi Pustaka');
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [serverStatus, setServerStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const { login } = useAuth();
@@ -50,19 +50,24 @@ const Login = () => {
           const baseUrl = apiUrl.replace('/api', '');
 
           if (res.data.logo) {
-            const logoPath = res.data.logo.replace(/\\/g, '/');
-            // If path already contains uploads/, use it directly relative to domain root
-            const url = logoPath.startsWith('http') 
-              ? logoPath 
-              : logoPath.startsWith('uploads/') ? `/${logoPath}` : `/uploads/${logoPath}`;
-            setLogoUrl(url);
+            let logoPath = String(res.data.logo).replace(/\\/g, '/');
+            if (logoPath.startsWith('http')) {
+              setLogoUrl(logoPath);
+            } else {
+              logoPath = logoPath.replace(/^\/+/, '');
+              const normalized = logoPath.startsWith('uploads/') ? `/${logoPath}` : `/uploads/${logoPath}`;
+              setLogoUrl(normalized);
+            }
           }
           if (res.data.login_background) {
-            const bgPath = res.data.login_background.replace(/\\/g, '/');
-            const url = bgPath.startsWith('http') 
-              ? bgPath 
-              : bgPath.startsWith('uploads/') ? `/${bgPath}` : `/uploads/${bgPath}`;
-            setBgUrl(url);
+            let bgPath = String(res.data.login_background).replace(/\\/g, '/');
+            if (bgPath.startsWith('http')) {
+              setBgUrl(bgPath);
+            } else {
+              bgPath = bgPath.replace(/^\/+/, '');
+              const normalizedBg = bgPath.startsWith('uploads/') ? `/${bgPath}` : `/uploads/${bgPath}`;
+              setBgUrl(normalizedBg);
+            }
           }
           if (res.data.company_name) {
             setCompanyName(res.data.company_name);

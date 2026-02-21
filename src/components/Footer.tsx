@@ -27,7 +27,7 @@ const Footer = () => {
       <footer className="bg-white/30 backdrop-blur-md border-t border-white/20 py-4 px-6 ml-64 mt-auto">
         <div className="flex justify-between items-center text-sm text-gray-600">
           <div className="flex items-center space-x-1">
-            <span>Copyright &copy; {currentYear} RuangMusik Publishing</span>
+          <span>Copyright &copy; {currentYear} 13 Nadi Pustaka</span>
             <span>&bull;</span>
             <button 
               onClick={() => setIsModalOpen(true)}

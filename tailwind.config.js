@@ -7,9 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#7A4A88', // Custom Purple
-        sidebar: '#2E2E48', // Dark Navy
-        'sidebar-active': '#27273F',
+        primary: '#019fbb',
+        sidebar: '#ffffff',
+        'sidebar-active': '#00d9ff',
         'accent-pink': '#E83E8C',
         background: '#F3F3F9',
       }

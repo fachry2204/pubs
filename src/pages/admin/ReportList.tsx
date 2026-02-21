@@ -130,7 +130,7 @@ const ReportList = () => {
             <Wallet size={24} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Share To Ruang Musik</p>
+            <p className="text-sm text-gray-500 font-medium">Share ke 13 Nadi Pustaka</p>
             <h3 className="text-xl font-bold text-gray-800">{formatCurrency(summary.total_admin_share || summary.total_tbw_share)}</h3>
           </div>
         </div>

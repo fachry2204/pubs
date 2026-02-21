@@ -25,6 +25,10 @@ const SettingModel = {
 
         // Check for app_icon column exists
         try {
+            const [loginBgCheck] = await pool.query("SHOW COLUMNS FROM settings LIKE 'login_background'");
+            if (loginBgCheck.length === 0) {
+                await pool.query("ALTER TABLE settings ADD COLUMN login_background VARCHAR(255) AFTER logo");
+            }
             const [columns] = await pool.query("SHOW COLUMNS FROM settings LIKE 'app_icon'");
             if (columns.length === 0) {
                 await pool.query("ALTER TABLE settings ADD COLUMN app_icon VARCHAR(255) AFTER logo");

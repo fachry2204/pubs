@@ -91,76 +91,12 @@ for (const p of possiblePaths) {
 
 if (finalFrontendPath) {
     console.log('Serving frontend from:', finalFrontendPath);
-    // Disable index.html serving to force root requests to go through our SEO injector
-    app.use(express.static(finalFrontendPath, { index: false }));
-
-    // Handle React routing, return all requests to React app
-    app.get('*', async (req, res) => {
-        // Skip API routes that might have fallen through
+    app.use(express.static(finalFrontendPath));
+    app.get('*', (req, res) => {
         if (req.path.startsWith('/api')) {
             return res.status(404).json({ message: 'API Endpoint not found' });
         }
-        
-        const indexPath = path.join(finalFrontendPath, 'index.html');
-        try {
-            let html = fs.readFileSync(indexPath, 'utf8');
-            
-            // Inject SEO & Social Meta Tags
-            try {
-                const settings = await SettingModel.get();
-                if (settings) {
-                    const title = settings.seo_title || settings.company_name || 'Pubs Music';
-                    const description = settings.seo_description || '';
-                    const image = settings.social_image || settings.app_icon || '';
-                    
-                    // Construct absolute URL
-                    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-                    const host = req.get('host');
-                    const baseUrl = `${protocol}://${host}`;
-                    
-                    let imageUrl = '';
-                    if (image) {
-                        if (image.startsWith('http')) {
-                            imageUrl = image;
-                        } else {
-                            // Ensure path starts with /
-                            // If stored as 'uploads/...' make it '/uploads/...'
-                            let cleanPath = image.replace(/\\/g, '/');
-                            if (!cleanPath.startsWith('/')) cleanPath = '/' + cleanPath;
-                            imageUrl = `${baseUrl}${cleanPath}`;
-                        }
-                    }
-                    
-                    const metaTags = `
-                        <!-- Injected SEO & Social Tags -->
-                        <title>${title}</title>
-                        <meta name="description" content="${description}" />
-                        <meta property="og:type" content="website" />
-                        <meta property="og:title" content="${title}" />
-                        <meta property="og:description" content="${description}" />
-                        <meta property="og:image" content="${imageUrl}" />
-                        <meta property="og:url" content="${baseUrl}${req.originalUrl}" />
-                        <meta name="twitter:card" content="summary_large_image" />
-                        <meta name="twitter:title" content="${title}" />
-                        <meta name="twitter:description" content="${description}" />
-                        <meta name="twitter:image" content="${imageUrl}" />
-                    `;
-                    
-                    // Replace <title>...<title> with comment to avoid duplicates
-                    html = html.replace(/<title>.*?<\/title>/i, '');
-                    // Insert new tags before </head>
-                    html = html.replace(/<\/head>/i, `${metaTags}</head>`);
-                }
-            } catch (dbError) {
-                console.error('Error fetching settings for SEO injection:', dbError);
-                // Continue serving original HTML if DB fails
-            }
-
-            res.send(html);
-        } catch (err) {
-            console.error('Error reading index.html:', err);
-            res.status(500).send('Error loading application');
-        }
+        res.sendFile(path.join(finalFrontendPath, 'index.html'));
     });
 } else {
     console.log('Frontend build not found. Checked paths:', possiblePaths);
