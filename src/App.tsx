@@ -167,6 +167,10 @@ function App() {
         {/* Lagu Saya */}
         <Route path="creators" element={<UserCreators />} />
         <Route path="songs" element={<UserSongs />} />
+        <Route path="songs/create" element={<CreateSong />} />
+        <Route path="songs/edit/:id" element={<CreateSong />} />
+        <Route path="creators/add" element={<AddCreator />} />
+        <Route path="creators/edit/:id" element={<AddCreator />} />
         
         {/* Report Saya */}
         <Route path="analytics" element={<UserAnalytics />} />

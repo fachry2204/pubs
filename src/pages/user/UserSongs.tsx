@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Search, Eye, X } from 'lucide-react';
+import { Search, Eye, X, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const UserSongs = () => {
   const [songs, setSongs] = useState<any[]>([]);
@@ -46,6 +47,15 @@ const UserSongs = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Data Lagu Saya</h1>
+        <div className="flex gap-2">
+          <Link 
+            to="/user/songs/create"
+            className="glass-button flex items-center"
+          >
+            <Plus size={20} className="mr-2" />
+            Tambah Lagu
+          </Link>
+        </div>
       </div>
 
       <div className="glass-panel">

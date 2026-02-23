@@ -94,6 +94,21 @@ if (finalFrontendPath) {
     // Disable index.html serving to force root requests to go through our SEO injector
     app.use(express.static(finalFrontendPath, { index: false }));
 
+    // Cache index.html content
+    const indexPath = path.join(finalFrontendPath, 'index.html');
+    let cachedIndexHtml = null;
+    try {
+        cachedIndexHtml = fs.readFileSync(indexPath, 'utf8');
+        console.log('Index.html cached successfully');
+    } catch (err) {
+        console.error('Failed to cache index.html:', err);
+    }
+
+    // Cache settings
+    let cachedSettings = null;
+    let lastSettingsFetch = 0;
+    const SETTINGS_TTL = 60000 * 5; // 5 minutes
+
     // Handle React routing, return all requests to React app
     app.get('*', async (req, res) => {
         // Skip API routes that might have fallen through
@@ -101,14 +116,28 @@ if (finalFrontendPath) {
             return res.status(404).json({ message: 'API Endpoint not found' });
         }
         
-        const indexPath = path.join(finalFrontendPath, 'index.html');
+        if (!cachedIndexHtml) {
+             try {
+                cachedIndexHtml = fs.readFileSync(indexPath, 'utf8');
+             } catch (err) {
+                console.error('Error reading index.html:', err);
+                return res.status(500).send('Error loading application');
+             }
+        }
+
+        let html = cachedIndexHtml;
+        
         try {
-            let html = fs.readFileSync(indexPath, 'utf8');
+            // Use cached settings if valid
+            const now = Date.now();
+            if (!cachedSettings || (now - lastSettingsFetch > SETTINGS_TTL)) {
+                cachedSettings = await SettingModel.get();
+                lastSettingsFetch = now;
+                console.log('Settings cache updated');
+            }
             
-            // Inject SEO & Social Meta Tags
-            try {
-                const settings = await SettingModel.get();
-                if (settings) {
+            const settings = cachedSettings;
+            if (settings) {
                     const title = settings.seo_title || settings.company_name || 'Pubs Music';
                     const description = settings.seo_description || '';
                     const image = settings.social_image || settings.app_icon || '';
@@ -158,7 +187,7 @@ if (finalFrontendPath) {
 
             res.send(html);
         } catch (err) {
-            console.error('Error reading index.html:', err);
+            console.error('Error serving index.html:', err);
             res.status(500).send('Error loading application');
         }
     });
